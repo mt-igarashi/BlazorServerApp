@@ -22,7 +22,7 @@ namespace BlazorApp.Helpers
         /// <returns>名称</returns>
         public static string GetDisplayName<TModel, TProperty>(this TModel model, Expression<Func<TModel, TProperty>> expression) 
         {
-            var type = ExpressionHelper.GetParentProperty(expression);
+            var type = ExpressionHelper.GetParentPropertyType(expression);
 
             var memberExpression = (MemberExpression)expression.Body;
             string propertyName = ((memberExpression.Member is PropertyInfo) ? memberExpression.Member.Name : null);

@@ -42,7 +42,7 @@ namespace BlazorApp.Helpers
         /// </summary>
         /// <param name="expression">式木</param>
         /// <returns></returns>
-        public static Type GetParentProperty(Expression expression)
+        public static Type GetParentPropertyType(Expression expression)
         {
             var list = new List<MemberExpression>();
             var memberExpression = GetMemberExpression(expression);
