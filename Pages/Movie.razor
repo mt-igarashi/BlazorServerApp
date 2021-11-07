@@ -1,0 +1,76 @@
+@page "/movie"
+@using BlazorApp.Helpers;
+
+<h2>映画一覧</h2>
+
+<p>
+    <a href="/movie/create">新規作成</a>
+</p>
+
+<EditForm Model="@MovieIndexForm" OnValidSubmit="@SearchSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <p>
+        <select @bind="MovieIndexForm.MovieGenre">
+            <option value="">All</option>
+            @foreach (var item in MovieIndexForm.GenreList)
+            {
+                <option value="@item">@item</option>
+            }
+        </select>
+
+        Title: <input @bind="MovieIndexForm.SearchString">
+        <input type="submit" value="フィルター" />
+    </p>
+
+</EditForm>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @MovieIndexForm.GetDisplayName(m => m.MovieList[0].Title)
+            </th>
+            <th>
+                @MovieIndexForm.GetDisplayName(m => m.MovieList[0].ReleaseDate)
+            </th>
+            <th>
+                @MovieIndexForm.GetDisplayName(m => m.MovieList[0].Genre)
+            </th>
+            <th>
+                @MovieIndexForm.GetDisplayName(m => m.MovieList[0].Price)
+            </th>
+            <th>
+                @MovieIndexForm.GetDisplayName(m => m.MovieList[0].Rating)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in MovieIndexForm.MovieList) {
+        <tr>
+            <td>
+                @item.Title
+            </td>
+            <td>
+                @item.ReleaseDate
+            </td>
+            <td>
+                @item.Genre
+            </td>
+            <td>
+                @item.Price
+            </td>
+            <td>
+                @item.Rating
+            </td>
+            <td>
+                <a href="@($"/movie/edit/{item.ID}")">編集</a> |
+                <a href="@($"/movie/detail/{item.ID}")">詳細</a> |
+                <a href="@($"/movie/delete/{item.ID}")">削除</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
