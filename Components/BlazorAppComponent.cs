@@ -218,7 +218,7 @@ namespace BlazorApp.Components
 
             if (data is not null)
             {
-                data.FormData = null;
+                data.FormData = string.Empty;
             }
             await sessionStorage.SetAsync(SESSION_STORAGE_KEY, JsonConvert.SerializeObject(dic));
         }

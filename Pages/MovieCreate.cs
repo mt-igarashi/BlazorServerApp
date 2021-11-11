@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using BlazorApp.Components;
+using BlazorApp.Messages;
 using BlazorApp.Services;
 
 namespace BlazorApp.Pages
@@ -56,7 +57,7 @@ namespace BlazorApp.Pages
             FormEditContext = new EditContext(MovieCreateForm);
             FormEditContext.OnValidationRequested += MovieCreateService.HandleUpdateValidationRequested;
             MessageStore = new ValidationMessageStore(FormEditContext);
-            MovieCreateService.SetMessages(MessageList, MessageStore);
+            MovieCreateService.SetMessages(new MessageList(), MessageStore);
         }
 
         /// <summary>
@@ -65,11 +66,12 @@ namespace BlazorApp.Pages
         private async Task HandleUpdateValidSubmit()
         {
             await MovieCreateService.Register(MovieCreateForm);
+            await RemoveFormDataAsync(nameof(Movie));
             NavigationManager.NavigateTo("/movie");
         }
 
         /// <summary>
-        /// 廃棄処理
+        /// 破棄処理
         /// </summary>
         public void Dispose()
         {
