@@ -24,8 +24,8 @@ namespace BlazorApp
             // 設定ファイル読込
             var builder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true)
-                .AddJsonFile($"appsettings.Development.json", optional: true)
-                .AddJsonFile($"disettings.json", optional: true)
+                .AddJsonFile("appsettings.Development.json", optional: true)
+                .AddJsonFile("disettings.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
