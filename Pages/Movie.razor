@@ -1,5 +1,7 @@
 @page "/movie"
+@using BlazorApp.Components;
 @using BlazorApp.Helpers;
+@inherits BlazorAppComponent
 
 <h2>映画一覧</h2>
 
@@ -7,20 +9,20 @@
     <a href="/movie/create">新規作成</a>
 </p>
 
-<EditForm Model="@MovieIndexForm" OnValidSubmit="@SearchSubmit">
+<EditForm Model="@MovieIndexForm" OnValidSubmit="@HandleSearchValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
     <p>
         <select @bind="MovieIndexForm.MovieGenre">
             <option value="">All</option>
-            @foreach (var item in MovieIndexForm.GenreList)
+            @foreach (var item in MovieIndexResult.GenreList)
             {
                 <option value="@item">@item</option>
             }
         </select>
 
-        Title: <input @bind="MovieIndexForm.SearchString">
+        Title: <InputText @bind-Value="MovieIndexForm.SearchString" />
         <input type="submit" value="フィルター" />
     </p>
 
@@ -30,25 +32,25 @@
     <thead>
         <tr>
             <th>
-                @MovieIndexForm.GetDisplayName(m => m.MovieList[0].Title)
+                @MovieIndexResult.GetDisplayName(m => m.MovieList[0].Title)
             </th>
             <th>
-                @MovieIndexForm.GetDisplayName(m => m.MovieList[0].ReleaseDate)
+                @MovieIndexResult.GetDisplayName(m => m.MovieList[0].ReleaseDate)
             </th>
             <th>
-                @MovieIndexForm.GetDisplayName(m => m.MovieList[0].Genre)
+                @MovieIndexResult.GetDisplayName(m => m.MovieList[0].Genre)
             </th>
             <th>
-                @MovieIndexForm.GetDisplayName(m => m.MovieList[0].Price)
+                @MovieIndexResult.GetDisplayName(m => m.MovieList[0].Price)
             </th>
             <th>
-                @MovieIndexForm.GetDisplayName(m => m.MovieList[0].Rating)
+                @MovieIndexResult.GetDisplayName(m => m.MovieList[0].Rating)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in MovieIndexForm.MovieList) {
+@foreach (var item in MovieIndexResult.MovieList) {
         <tr>
             <td>
                 @item.Title

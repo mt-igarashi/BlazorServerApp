@@ -8,30 +8,30 @@ namespace BlazorApp.Models
     {
         public int ID { get; set; }
         [Display(Name = "タイトル")]
-        [StringLength(60, MinimumLength = 3)]
-        [Required]
+        [StringLength(60, MinimumLength = 3, ErrorMessage = "{0}は{2}文字以上{1}文字以内で入力してください")]
+        [Required(ErrorMessage = "{0}は必須項目です")]
         public string Title { get; set; }
 
         [Display(Name = "公開日")]
         [DataType(DataType.Date)]
-        public DateTime ReleaseDate { get; set; }
+        public DateTime ReleaseDate { get; set; } = DateTime.Today;
 
         [Display(Name = "ジャンル")]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z""'\s-]*$")]
-        [Required]
-        [StringLength(30)]
+        [RegularExpression(@"^[A-Z]+[a-zA-Z""'\s-]*$", ErrorMessage = "{0}は半角ローマ字で入力してください")]
+        [Required(ErrorMessage = "{0}は必須入力です")]
+        [StringLength(30, ErrorMessage = "{0}は{1}文字以内で入力してください")]
         public string Genre { get; set; }
 
         [Display(Name = "価格")]
-        [Range(1, 100)]
+        [Range(1, 100, ErrorMessage = "{0}は{1}と{2}の間で入力してください")]
         [DataType(DataType.Currency)]
         [Column(TypeName = "decimal(18, 2)")]
-        public decimal Price { get; set; }
+        public decimal Price { get; set; } = 100;
 
         [Display(Name = "評価")]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z0-9""'\s-]*$")]
-        [StringLength(5)]
-        [Required]
+        [RegularExpression(@"^[A-Z]+[a-zA-Z0-9""'\s-]*$", ErrorMessage = "{0}は英数字で入力してください")]
+        [StringLength(5, ErrorMessage = "{0}は{1}文字以内で入力してください")]
+        [Required(ErrorMessage = "{0}は必須項目です")]
         public string Rating { get; set; }
     }
 }

@@ -48,3 +48,19 @@ a, .btn-link {
         right: 0.75rem;
         top: 0.5rem;
     }
+
+.success-area { 
+    padding:12px;
+    font-weight:850;
+    color:#262626;
+    background:#CCFFCC;
+    border:2px solid #00CC00;
+}
+
+.error-area {
+     padding:12px;
+     font-weight:850;
+     color:#262626;
+     background:#FFEBE8;
+     border:2px solid #990000;
+}

@@ -1,7 +1,11 @@
 @page "/chat"
 @using Microsoft.AspNetCore.SignalR.Client
-@inject NavigationManager NavigationManager
+@using BlazorApp.Components
+
 @implements IAsyncDisposable
+@inherits BlazorAppComponent
+
+@inject NavigationManager NavigationManager
 
 <div class="form-group">
     <label>
@@ -28,7 +32,7 @@
 
 @code {
     private HubConnection hubConnection;
-    private List<string> messages = new List<string>();
+    private List<string> messages = new();
     private string userInput;
     private string messageInput;
 
@@ -63,7 +67,7 @@
 
     public bool IsConnected =>
         hubConnection.State == HubConnectionState.Connected;
-
+    
     public async ValueTask DisposeAsync()
     {
         if (hubConnection is not null)

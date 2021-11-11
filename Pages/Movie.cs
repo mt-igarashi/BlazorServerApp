@@ -1,24 +1,44 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
-using Microsoft.EntityFrameworkCore;
-using System.Net.Http;
+using BlazorApp.Components;
 using BlazorApp.Forms;
-using BlazorApp.Models;
+using BlazorApp.Results;
+using BlazorApp.Services;
 
-namespace BlazorApp.Pages {
-    public partial class Movie : ComponentBase
+namespace BlazorApp.Pages
+{
+    public partial class Movie : BlazorAppComponent
     {
-        // DBコンテキスト 
+        /// <summary>
+        /// 映画インデックスサービス
+        /// </summary>
         [Inject]
-        protected BlazorAppContext Context { get; set; }
+        protected IMovieIndexService MovieIndexService { get; set; }
 
         /// <summary>
         /// 画面フォーム
         /// </summary>
-        public MovieIndexForm MovieIndexForm { get; set; } = new MovieIndexForm();
+        public MovieIndexForm MovieIndexForm { get; set; } = new();
+
+        /// <summary>
+        /// サービス実行結果
+        /// </summary>
+        public MovieIndexResult MovieIndexResult { get; set; } = new(); 
+
+        /// <summary>
+        /// フォームデータの復元
+        /// </summary>
+        /// <returns></returns>
+        protected override async Task<string> RestoreFormDataAsync()
+        {
+            var form = await GetFormDataAsync<MovieIndexForm>(nameof(Movie));
+            if (form is not null)
+            {
+                MovieIndexForm = form;
+                StateHasChanged();
+            }
+            return await Task.FromResult(nameof(Movie));
+        }
 
         /// <summary>
         /// 初期化処理
@@ -26,36 +46,30 @@ namespace BlazorApp.Pages {
         /// <returns>Task</returns>
         protected override async Task OnInitializedAsync()
     　　{
-            IQueryable<string> genreQuery = from m in Context.Movie
-                                            orderby m.Genre
-                                            select m.Genre;
-            MovieIndexForm.GenreList = await genreQuery.Distinct().ToListAsync();
-            
-            await Search();
+            MovieIndexResult.GenreList = await MovieIndexService.GetGenreList();
+        }
+
+        /// <summary>
+        /// 画面描画後処理
+        /// </summary>
+        /// <param name="firstRender">初回表示を表すフラグ</param>
+        protected async override Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+            if (firstRender)
+            {
+                MovieIndexResult.MovieList = await MovieIndexService.GetMovieList(MovieIndexForm);
+                StateHasChanged();
+            }
+            await SetFormDataAsync(nameof(Movie), MovieIndexForm);
         }
 
         /// <summary>
         /// 検索実行イベント
         /// </summary>
-        private async Task SearchSubmit()
+        private async Task HandleSearchValidSubmit()
         {
-            await Search();
-        }
-
-        private async Task Search() {
-
-            var movies = from m in Context.Movie
-                         select m;
-            
-            if (!String.IsNullOrEmpty(MovieIndexForm.SearchString)) {
-                movies = movies.Where(s => s.Title.Contains(MovieIndexForm.SearchString));
-            }
-
-            if (!String.IsNullOrEmpty(MovieIndexForm.MovieGenre)) {
-                movies = movies.Where(x => x.Genre == MovieIndexForm.MovieGenre);
-            }
-
-            MovieIndexForm.MovieList = await movies.ToListAsync();
+            MovieIndexResult.MovieList = await MovieIndexService.GetMovieList(MovieIndexForm);;
         }
     }
 }

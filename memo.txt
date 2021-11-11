@@ -1,11 +1,17 @@
-SgnalRのクラスが存在しない場合は以下をインストール
+■SgnalRのクラスが存在しない場合は以下をインストール
 dotnet add package Microsoft.AspNetCore.SignalR.Client --version 5.0.11
 
-まだデバッグは実行できないので
-ターミナルで dotnet watch run を実行するか
-デバッグなしで実行する。
+■EntityFrameworkのクラスが存在しない場合は以下をインストール
+dotnet add package Microsoft.EntityFrameworkCore --version 5.0.11
 
-Visual Studio CodeにBlazorのテンプレートがない場合は
-.templateengine\dotnetcliフォルダは以下のファイルを消去する。
+■JsonConvertのクラスが存在しない場合は以下をインストール
+dotnet add package Newtonsoft.Json --version 13.0.1
 
-ChatはタブでChat画面をもう一つ開けば通信ができているのを確認できる。
+■デバッグできない場合
+64bitの.NETをインストールする
+
+■Visual Studio CodeにBlazorのテンプレートがない場合
+.templateengine\dotnetcliフォルダ配下のファイルを消去する。
+
+■ChatでSignalRの通信が確認できない場合
+タブでChat画面をもう一つ開けば通信ができているのを確認できる。

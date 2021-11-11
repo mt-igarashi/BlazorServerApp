@@ -1,0 +1,12 @@
+{
+    "disettings": {
+          "IMovieIndexService":  {
+              "interface" : "BlazorApp.Services.IMovieIndexService",
+              "extend" : "BlazorApp.Services.MovieIndexService"
+          },
+          "IMovieCreateService":  {
+            "interface" : "BlazorApp.Services.IMovieCreateService",
+            "extend" : "BlazorApp.Services.MovieCreateService"
+        }
+      }
+}

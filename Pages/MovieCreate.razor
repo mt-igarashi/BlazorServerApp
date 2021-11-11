@@ -1,0 +1,53 @@
+@page "/movie/create"
+@using BlazorApp.Helpers
+@using BlazorApp.Components
+@inherits BlazorAppComponent
+
+<Message MessageList=MessageList />
+<br>
+
+<h2>新規作成</h2>
+
+<h4>映画</h4>
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <EditForm EditContext="@FormEditContext" OnValidSubmit="@HandleUpdateValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label id="title" class="control-label">@MovieCreateForm.GetDisplayName(m => m.Title)</label>
+                <InputText id="title" class="form-control" @bind-Value="MovieCreateForm.Title" />
+                <ValidationMessage For="() => MovieCreateForm.Title" />
+            </div>
+            <div class="form-group">
+                <label id="releaseDate" class="control-label">@MovieCreateForm.GetDisplayName(m => m.ReleaseDate)</label>
+                <InputDate id="releaseDate" class="form-control" @bind-Value="MovieCreateForm.ReleaseDate" />
+                <ValidationMessage For="() => MovieCreateForm.ReleaseDate" />
+            </div>
+            <div class="form-group">
+                <label id="genre" class="control-label">@MovieCreateForm.GetDisplayName(m => m.Genre)</label>
+                <InputText id="genre" class="form-control" @bind-Value="MovieCreateForm.Genre" />
+                <ValidationMessage For="() => MovieCreateForm.Genre" />
+            </div>
+            <div class="form-group">
+                <label id="price" class="control-label">@MovieCreateForm.GetDisplayName(m => m.Price)</label>
+                <InputNumber id="price" class="form-control" @bind-Value="MovieCreateForm.Price" />
+                <ValidationMessage For="() => MovieCreateForm.Price" />
+            </div>
+            <div class="form-group">
+                <label id="rating" class="control-label">@MovieCreateForm.GetDisplayName(m => m.Rating)</label>
+                <InputText id="rating" class="form-control" @bind-Value="MovieCreateForm.Rating" />
+                <ValidationMessage For="() => MovieCreateForm.Rating" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="登録" class="btn btn-primary" />
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/movie">一覧に戻る</a>
+</div>

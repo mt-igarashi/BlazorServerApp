@@ -1,5 +1,7 @@
 ﻿@page "/todo"
 @using BlazorApp.Forms;
+@using BlazorApp.Components
+@inherits BlazorAppComponent
 
 <span style="color:red; font-size:18px;">@message</span>
 <br>
@@ -26,7 +28,7 @@
 
      [Parameter]
     public EventCallback<string> TodoChanged { get; set; }
-
+    
     private async Task OnTodoChanged(ChangeEventArgs e)
     {
         var value = e.Value.ToString();
