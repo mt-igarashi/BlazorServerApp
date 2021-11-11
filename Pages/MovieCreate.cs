@@ -19,6 +19,12 @@ namespace BlazorApp.Pages
         protected IMovieCreateService MovieCreateService { get; set; }
 
         /// <summary>
+        /// ナビゲーションマネジャー
+        /// </summary>
+        [Inject]
+        protected NavigationManager NavigationManager { get; set; }
+
+        /// <summary>
         /// 画面フォーム
         /// </summary>
         protected Models.Movie MovieCreateForm { get; set; } = new();
@@ -59,6 +65,7 @@ namespace BlazorApp.Pages
         private async Task HandleUpdateValidSubmit()
         {
             await MovieCreateService.Register(MovieCreateForm);
+            NavigationManager.NavigateTo("/movie");
         }
 
         /// <summary>

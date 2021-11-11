@@ -69,7 +69,7 @@ namespace BlazorApp.Pages
         /// </summary>
         private async Task HandleSearchValidSubmit()
         {
-            MovieIndexResult.MovieList = await MovieIndexService.GetMovieList(MovieIndexForm);;
+            MovieIndexResult.MovieList = await MovieIndexService.GetMovieList(MovieIndexForm);
         }
     }
 }
