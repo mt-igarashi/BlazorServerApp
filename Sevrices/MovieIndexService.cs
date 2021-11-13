@@ -9,8 +9,16 @@ using BlazorApp.Models;
 
 namespace BlazorApp.Services
 {
+    /// <summary>
+    /// 映画一覧サービス
+    /// </summary>
     public class MovieIndexService : IMovieIndexService
     {
+        /// <summary>
+        /// DBコンテキスト
+        /// </summary>
+        protected BlazorAppContext Context { get; set; }
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -19,11 +27,26 @@ namespace BlazorApp.Services
         {
             Context = context;
         }
-        
+
         /// <summary>
-        /// DBコンテキスト
+        /// 指定したIDに紐付く映画を取得します。
         /// </summary>
-        protected BlazorAppContext Context { get; set; }
+        /// <param name="id">ID</param>
+        /// <returns>映画エンティティ</returns>
+        public Movie FindById(int id)
+        {
+            return Context.Movie.Find(id);
+        }
+
+        /// <summary>
+        /// 指定したIDに紐付く映画を取得します。
+        /// </summary>
+        /// <param name="id">ID</param>
+        /// <returns>映画エンティティ</returns>
+        public async Task<Movie> FindByIdAsync(int id)
+        {
+            return await Context.Movie.FindAsync(id);
+        }
 
         /// <summary>
         /// ジャンル一覧を取得します。
@@ -35,7 +58,7 @@ namespace BlazorApp.Services
                                        orderby m.Genre
                                        select m.Genre;
             return genreQuery.Distinct().ToListAsync();
-        } 
+        }
 
         /// <summary>
         /// 映画一覧を取得します。

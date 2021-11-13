@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using BlazorApp.Messages;
 using BlazorApp.Storage;
@@ -87,14 +88,6 @@ namespace BlazorApp.Components
         /// <summary>
         /// フォームを復元します。
         /// </summary>
-        protected virtual string RestoreFormData()
-        {
-            return string.Empty;
-        }
-
-        /// <summary>
-        /// フォームを復元します。
-        /// </summary>
         protected virtual async Task<string> RestoreFormDataAsync()
         {
             return await Task.FromResult(string.Empty);
@@ -171,8 +164,14 @@ namespace BlazorApp.Components
         {
             var dic = await GetSessionStorageAsync();
             var sessionData = dic.GetValueOrDefault(key) ?? new();
+
+            var json = JsonConvert.SerializeObject(data);
+            if (sessionData.FormData == json)
+            {
+                return;
+            }
             
-            sessionData.FormData = JsonConvert.SerializeObject(data);
+            sessionData.FormData = json;
             dic[key] = sessionData;
             
             await sessionStorage.SetAsync(SESSION_STORAGE_KEY, JsonConvert.SerializeObject(dic));
@@ -248,6 +247,52 @@ namespace BlazorApp.Components
                 }
             }
             await sessionStorage.SetAsync(SESSION_STORAGE_KEY, JsonConvert.SerializeObject(dic));
+        }
+
+        /// <summary>
+        /// メッセージをマージします。
+        /// </summary>
+        /// <param name="messageList">メッセージリスト</param>
+        /// <param name="messageStore">検証メッセージ</param>
+        /// <param name="clear">クリアフラグ</param>
+        protected void MergeMessages(MessageList messageList, bool clear = false)
+        {
+            if (messageList is not null)
+            {
+                MessageList.SuccessMessageList.AddRange(messageList.SuccessMessageList);
+                MessageList.ErrorMessageList.AddRange(messageList.ErrorMessageList);
+                if (clear)
+                {
+                    messageList.ClearMessages();
+                }
+            }
+        }
+
+        /// <summary>
+        /// メッセージをマージします。
+        /// </summary>
+        /// <param name="messageList">メッセージリスト</param>
+        /// <param name="messageStore">検証メッセージ</param>
+        /// <param name="clear">クリアフラグ</param>
+        protected void MergeMessages(MessageList messageList, ValidationMessageStore messageStore, bool clear = false)
+        {
+            if (messageStore is not null)
+            {
+                foreach (var store in messageList.ValidationMessageList)
+                {
+                    messageStore.Add(store.Accessor, store.Message);
+                }
+            }
+
+            if (messageList is not null)
+            {
+                MessageList.SuccessMessageList.AddRange(messageList.SuccessMessageList);
+                MessageList.ErrorMessageList.AddRange(messageList.ErrorMessageList);
+                if (clear)
+                {
+                    messageList?.ClearMessages();
+                }
+            }
         }
     }
 }

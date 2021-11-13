@@ -1,7 +1,10 @@
-@page "/movie"
+@page "/movie/{Id:int?}"
 @using BlazorApp.Components;
 @using BlazorApp.Helpers;
 @inherits BlazorAppComponent
+
+<Message MessageList=MessageList />
+<br>
 
 <h2>映画一覧</h2>
 
@@ -9,18 +12,18 @@
     <a href="/movie/create">新規作成</a>
 </p>
 
-<EditForm Model="@MovieIndexForm" OnValidSubmit="@HandleSearchValidSubmit">
+<EditForm EditContext="@FormEditContext" OnValidSubmit="@HandleSearchValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
     <p>
-        <select @bind="MovieIndexForm.MovieGenre">
+        <InputSelect @bind-Value="MovieIndexForm.MovieGenre">
             <option value="">All</option>
             @foreach (var item in MovieIndexResult.GenreList)
             {
                 <option value="@item">@item</option>
             }
-        </select>
+        </InputSelect>
 
         Title: <InputText @bind-Value="MovieIndexForm.SearchString" />
         <input type="submit" value="フィルター" />
@@ -68,9 +71,9 @@
                 @item.Rating
             </td>
             <td>
-                <a href="@($"/movie/edit/{item.ID}")">編集</a> |
-                <a href="@($"/movie/detail/{item.ID}")">詳細</a> |
-                <a href="@($"/movie/delete/{item.ID}")">削除</a>
+                <a href="@($"/movie/create/{item.ID}")">編集</a> |
+                <a href="@($"/movie/create/{item.ID}/t")">詳細</a> |
+                <a href="@($"/movie/{item.ID}")">削除</a>
             </td>
         </tr>
 }

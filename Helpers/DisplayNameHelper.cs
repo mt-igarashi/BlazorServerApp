@@ -8,7 +8,7 @@ using System.Reflection;
 namespace BlazorApp.Helpers
 {
     /// <summary>
-    /// HtmlHelperクラス
+    /// DisplayHelperクラス
     /// </summary>
     public static class DisplayNameHelper
     {

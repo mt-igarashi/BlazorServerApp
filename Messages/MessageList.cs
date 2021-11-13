@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace BlazorApp.Messages
 {
@@ -16,6 +18,11 @@ namespace BlazorApp.Messages
         /// エラーメッセージリスト
         /// </summary>
         public List<string> ErrorMessageList { get; private set; } = new();
+
+        /// <summary>
+        /// 検証メッセージ
+        /// </summary>
+        public List<MessageStore> ValidationMessageList { get; private set; } = new();
 
         /// <summary>
         /// 成功メッセージを追加します。
@@ -36,12 +43,26 @@ namespace BlazorApp.Messages
         }
 
         /// <summary>
+        /// 検証メッセージを追加します。
+        /// </summary>
+        /// <param name="accessor">アクセッサ</param>
+        /// <param name="message">メッセージ</param>
+        public void AddValidationMessage(Expression<Func<object>> accessor, string message)
+        {
+            ValidationMessageList.Add(new MessageStore {
+                Accessor = accessor,
+                Message = message
+            });
+        }
+
+        /// <summary>
         /// メッセージをクリアします。
         /// </summary>
         public void ClearMessages()
         {
             SuccessMessageList.Clear();
             ErrorMessageList.Clear();
+            ValidationMessageList.Clear();
         }
     }
 }

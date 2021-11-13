@@ -1,17 +1,39 @@
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components.Forms;
 using BlazorApp.Messages;
 using BlazorApp.Models;
 
 namespace BlazorApp.Services {
+    /// <summary>
+    /// 映画登録サービス
+    /// </summary>
     public interface IMovieCreateService
     {
-        MessageList MessageList { get; set; }
-        ValidationMessageStore MessageStore { get; set; }
+        /// <summary>
+        /// 映画を登録します。
+        /// </summary>
+        /// <param name="movie">映画エンティティ</param>
+        /// <returns>メッセージリスト</returns>
+        Task<MessageList> Register(Movie movie);
+ 
+        /// <summary>
+        /// 映画を更新します。
+        /// </summary>
+        /// <param name="movie">映画エンティティ</param>
+        /// <returns>メッセージリスト</returns>
+        Task<MessageList> Update(Movie movie);
 
-        Task Register(Movie movie); 
-        Task Update(Movie movie);
-        void HandleUpdateValidationRequested(object sender, ValidationRequestedEventArgs args);
-        void SetMessages(MessageList message, ValidationMessageStore store);
+        /// <summary>
+        /// 映画を削除します。
+        /// </summary>
+        /// <param name="id">ID</param>
+        /// <returns>メッセージリスト</returns>
+        Task<MessageList> Delete(int id);
+
+        /// <summary>
+        /// 検証を実行します。
+        /// </summary>
+        /// <param name="movie">映画エンティティ</param>
+        /// <returns>メッセージ一覧</returns>
+        Task<MessageList> Validate(Movie movie);
     }
 }
