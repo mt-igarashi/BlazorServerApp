@@ -29,26 +29,6 @@ namespace BlazorApp.Services
         }
 
         /// <summary>
-        /// 指定したIDに紐付く映画を取得します。
-        /// </summary>
-        /// <param name="id">ID</param>
-        /// <returns>映画エンティティ</returns>
-        public Movie FindById(int id)
-        {
-            return Context.Movie.Find(id);
-        }
-
-        /// <summary>
-        /// 指定したIDに紐付く映画を取得します。
-        /// </summary>
-        /// <param name="id">ID</param>
-        /// <returns>映画エンティティ</returns>
-        public async Task<Movie> FindByIdAsync(int id)
-        {
-            return await Context.Movie.FindAsync(id);
-        }
-
-        /// <summary>
         /// ジャンル一覧を取得します。
         /// </summary>
         /// <returns>ジャンルリスト</returns>

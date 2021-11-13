@@ -290,7 +290,7 @@ namespace BlazorApp.Components
                 MessageList.ErrorMessageList.AddRange(messageList.ErrorMessageList);
                 if (clear)
                 {
-                    messageList?.ClearMessages();
+                    messageList.ClearMessages();
                 }
             }
         }

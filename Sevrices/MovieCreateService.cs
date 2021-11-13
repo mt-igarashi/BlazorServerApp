@@ -24,6 +24,26 @@ namespace BlazorApp.Services {
         }
 
         /// <summary>
+        /// 指定したIDに紐付く映画を取得します。
+        /// </summary>
+        /// <param name="id">ID</param>
+        /// <returns>映画エンティティ</returns>
+        public Movie FindById(int id)
+        {
+            return Context.Movie.Find(id);
+        }
+
+        /// <summary>
+        /// 指定したIDに紐付く映画を取得します。
+        /// </summary>
+        /// <param name="id">ID</param>
+        /// <returns>映画エンティティ</returns>
+        public async Task<Movie> FindByIdAsync(int id)
+        {
+            return await Context.Movie.FindAsync(id);
+        }
+
+        /// <summary>
         /// 映画を登録します。
         /// </summary>
         public async Task<MessageList> Register(Movie movie)
@@ -55,7 +75,17 @@ namespace BlazorApp.Services {
             }
             catch (DbUpdateConcurrencyException)
             {
-                messageList.AddErrorMessage("既に更新されている為、再度処理を行ってください");
+                var isFound = await Context.Movie.FindAsync(movie.ID) != null;
+                if (isFound)
+                {
+                    messageList.AddErrorMessage("既に更新されている為、再度処理を行ってください");   
+                }
+                else
+                {
+                    messageList.HasDeletionMessage = true;
+                    messageList.AddErrorMessage("対象の映画は既に削除されています");   
+                }
+
             }
 
             return messageList;
@@ -71,7 +101,7 @@ namespace BlazorApp.Services {
             var messageList = new MessageList();
             try
             {
-                Movie movie = await Context.Movie.FindAsync(id);
+                var movie = await Context.Movie.FindAsync(id);
                 if (movie == null)
                 {
                     messageList.AddErrorMessage("既に削除されていいます");

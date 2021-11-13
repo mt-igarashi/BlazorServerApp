@@ -25,6 +25,11 @@ namespace BlazorApp.Messages
         public List<MessageStore> ValidationMessageList { get; private set; } = new();
 
         /// <summary>
+        /// 削除メッセージを保持しているかを表すフラグ
+        /// </summary>
+        public bool HasDeletionMessage { get; set; }
+
+        /// <summary>
         /// 成功メッセージを追加します。
         /// </summary>
         /// <param name="message">メッセージ</param>
@@ -63,6 +68,7 @@ namespace BlazorApp.Messages
             SuccessMessageList.Clear();
             ErrorMessageList.Clear();
             ValidationMessageList.Clear();
+            HasDeletionMessage = false;
         }
     }
 }

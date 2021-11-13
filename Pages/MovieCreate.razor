@@ -6,11 +6,11 @@
 <Message MessageList=MessageList />
 <br>
 
-@if (ReadOnly)
+@if (DetailMode)
 {
     <h2>詳細</h2>
 }
-else if (Id.HasValue)
+else if (EditMode)
 {
     <h2>編集</h2>
 }
@@ -29,30 +29,30 @@ else
 
             <div class="form-group">
                 <label id="title" class="control-label">@MovieCreateForm.GetDisplayName(m => m.Title)</label>
-                <InputText id="title" class="form-control" @bind-Value="MovieCreateForm.Title" readonly="@ReadOnly"/>
+                <InputText id="title" class="form-control" @bind-Value="MovieCreateForm.Title" readonly="@DetailMode"/>
                 <ValidationMessage For="() => MovieCreateForm.Title" />
             </div>
             <div class="form-group">
                 <label id="releaseDate" class="control-label">@MovieCreateForm.GetDisplayName(m => m.ReleaseDate)</label>
-                <InputDate id="releaseDate" class="form-control" @bind-Value="MovieCreateForm.ReleaseDate" readonly="@ReadOnly"/>
+                <InputDate id="releaseDate" class="form-control" @bind-Value="MovieCreateForm.ReleaseDate" readonly="@DetailMode"/>
                 <ValidationMessage For="() => MovieCreateForm.ReleaseDate" />
             </div>
             <div class="form-group">
                 <label id="genre" class="control-label">@MovieCreateForm.GetDisplayName(m => m.Genre)</label>
-                <InputText id="genre" class="form-control" @bind-Value="MovieCreateForm.Genre" readonly="@ReadOnly"/>
+                <InputText id="genre" class="form-control" @bind-Value="MovieCreateForm.Genre" readonly="@DetailMode"/>
                 <ValidationMessage For="() => MovieCreateForm.Genre" />
             </div>
             <div class="form-group">
                 <label id="price" class="control-label">@MovieCreateForm.GetDisplayName(m => m.Price)</label>
-                <InputNumber id="price" class="form-control" @bind-Value="MovieCreateForm.Price" readonly="@ReadOnly"/>
+                <InputNumber id="price" class="form-control" @bind-Value="MovieCreateForm.Price" readonly="@DetailMode"/>
                 <ValidationMessage For="() => MovieCreateForm.Price" />
             </div>
             <div class="form-group">
                 <label id="rating" class="control-label">@MovieCreateForm.GetDisplayName(m => m.Rating)</label>
-                <InputText id="rating" class="form-control" @bind-Value="MovieCreateForm.Rating" readonly="@ReadOnly"/>
+                <InputText id="rating" class="form-control" @bind-Value="MovieCreateForm.Rating" readonly="@DetailMode"/>
                 <ValidationMessage For="() => MovieCreateForm.Rating" />
             </div>
-            @if (!ReadOnly)
+            @if (!DetailMode)
             {
                 <div class="form-group">
                     <input type="submit" value="登録" class="btn btn-primary" />

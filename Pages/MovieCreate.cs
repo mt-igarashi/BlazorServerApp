@@ -15,12 +15,6 @@ namespace BlazorApp.Pages
     public partial class MovieCreate : BlazorAppComponent, IDisposable
     {
         /// <summary>
-        /// 映画一覧サービス
-        /// </summary>
-        [Inject]
-        protected IMovieIndexService MovieIndexService { get; set; }
-
-        /// <summary>
         /// 映画作成サービス
         /// </summary>
         [Inject]
@@ -65,9 +59,14 @@ namespace BlazorApp.Pages
         public bool NotFound { get; set; }
 
         /// <summary>
-        /// 読み取りモード
+        /// 詳細モード
         /// </summary>
-        public bool ReadOnly { get; set; }
+        public bool DetailMode { get; set; }
+
+        /// <summary>
+        /// 編集モード
+        /// </summary>
+        public bool EditMode { get; set; }
 
         /// <summary>
         /// フォームデータを復元します。
@@ -82,16 +81,26 @@ namespace BlazorApp.Pages
         /// </summary>
         protected override void OnInitialized()
     　　{
-            ReadOnly = !string.IsNullOrEmpty(Token);
-            if (Id.HasValue)
+            DetailMode = !string.IsNullOrEmpty(Token);
+            EditMode = Id.HasValue;
+
+            if (EditMode)
             {
-                var form = MovieIndexService.FindById(Id.Value);
+                // 編集時はDBから映画を取得
+                // EntityFrameworkがモデルをトラッキングをしているので
+                // 必ずEntityFrameworkから取得する
+                var form = MovieCreateService.FindById(Id.Value);
                 if (form != null)
                 {
                     MovieCreateForm = form;
                 }
                 else
                 {
+                    // ブラウザのセッションにアクセスする為
+                    // 処理はOnAfterRenderAsyncで行う
+                    // Javascriptを呼び出すメソッドは
+                    // OnAfterRender、OnAfterRrenderAsyncで実行する
+                    // (上記関数以外は例外が発生する)
                     NotFound = true;
                 }
             }
@@ -109,6 +118,8 @@ namespace BlazorApp.Pages
         {
             if (firstRender)
             {
+                // 映画が削除されていた場合は
+                // 以前の検索条件で映画一覧に表示する(エラーメッセージあり)
                 if (NotFound)
                 {
                     var messageList = new MessageList();
@@ -143,14 +154,27 @@ namespace BlazorApp.Pages
         private async Task HandleUpdateValidSubmit()
         {
             MessageList messageList;
-            if (Id.HasValue)
+            if (EditMode)
             {
+                // 更新時
                 messageList = await MovieCreateService.Update(MovieCreateForm);
+                
+                // 正常終了
                 if (messageList.ErrorMessageList.Count == 0)
                 {
                     messageList.AddSuccessMessage("更新が完了しました");
+                    MergeMessages(messageList);
+                    return;
+                }
+
+                // 楽観ロックエラー
+                if (!messageList.HasDeletionMessage)
+                {
+                    MergeMessages(messageList);
+                    return;
                 }
                 
+                // 対象映画が削除されていた場合
                 var form = await GetFormDataAsync<MovieIndexForm>(nameof(Movie));
                 form.MessageList = messageList;
 
@@ -159,12 +183,16 @@ namespace BlazorApp.Pages
             }
             else
             {
+                // 登録処理
                 messageList = await MovieCreateService.Register(MovieCreateForm);
+                
+                // 正常終了
                 if (messageList.ErrorMessageList.Count == 0)
                 {
                     messageList.AddSuccessMessage("登録が完了しました");
                 }
                 
+                // メッセージを検索条件なしで映画一覧に表示する
                 var form = new MovieIndexForm(){
                     MessageList = messageList
                 };

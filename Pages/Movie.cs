@@ -45,12 +45,12 @@ namespace BlazorApp.Pages
         /// <summary>
         /// 編集コンテキスト
         /// </summary>
-        protected EditContext FormEditContext { get; set; }
+        public EditContext FormEditContext { get; set; }
 
         /// <summary>
         /// 検証メッセージストア
         /// </summary>
-        protected ValidationMessageStore MessageStore { get; set; }
+        public ValidationMessageStore MessageStore { get; set; }
 
         /// <summary>
         /// ID
@@ -67,6 +67,10 @@ namespace BlazorApp.Pages
             var form = await GetFormDataAsync<MovieIndexForm>(nameof(Movie));
             if (form is not null)
             {
+                // EditContextを使う場合はMovieIndexFormをそのまま置き換えると
+                // 検証属性のバリデーションが動かなくなる(MovieindexFormの属性を参照)
+                // MovieIndexFormを置き換える場合はEditContextを再構成する
+                // MovieIndexForm置き換えない場合はプロパティをコピーする
                 MovieIndexForm.SearchString = form.SearchString;
                 MovieIndexForm.MovieGenre = form.MovieGenre;
                 MovieIndexForm.MessageList = form.MessageList;
@@ -81,6 +85,10 @@ namespace BlazorApp.Pages
         /// <returns>Task</returns>
         protected override void OnInitialized()
     　　{
+            // OnInitialized、OnInitializedAsyncはインスタンス生成時に１回だけ呼び出される
+            // タイミングはURLが変わったタイミング(URLバーからの変更はインスタンスが再生成される)
+            // EditContextの設定はOnInitializedで行う
+            // OnInitializedAsyncAsyncメソッドで行うと例外が発生する
             FormEditContext = new EditContext(MovieIndexForm);
             FormEditContext.OnValidationRequested += HandleUpdateValidationRequested;
             FormEditContext.OnFieldChanged += HandleFieldChanged;
@@ -93,6 +101,8 @@ namespace BlazorApp.Pages
         /// <returns>Task</returns>
         protected override async Task OnInitializedAsync()
     　　{
+            // OnInitializedAsyncではDBアクセスなど重い処理を行う
+            // awaitしている間に画面が描画される
             await base.OnInitializedAsync();
             MovieIndexResult.GenreList = await MovieIndexService.GetGenreList();
         }
@@ -102,6 +112,8 @@ namespace BlazorApp.Pages
         /// </summary>
         protected async override Task OnParametersSetAsync()
         {
+            // フォームのパラメータが変更されたときはこのイベントは呼び出されない
+            // Initializedの後かParameter属性の値が変更された場合に呼び出される(IDプロパティを参照)
             await base.OnParametersSetAsync();
             await DeleteMovieIfExist();
         }
@@ -115,10 +127,15 @@ namespace BlazorApp.Pages
             await base.OnAfterRenderAsync(firstRender);
             if (firstRender)
             {
+                // firstRenderで判定することにより初回表示に１回だけ呼び出されるのが保証される
                 MovieIndexResult.MovieList = await MovieIndexService.GetMovieList(MovieIndexForm);
                 MergeMessages(MovieIndexForm.MessageList, true);
+
+                // 初回描画時は画面に反映されないので変更したことを通知する
                 StateHasChanged();
             }
+
+            // 画面描画イベントは複数回発生するのでその対処が必要
             await SetFormDataAsync(nameof(Movie), MovieIndexForm);
         }
 
@@ -129,6 +146,8 @@ namespace BlazorApp.Pages
         /// <param name="args">args</param>
         private void HandleUpdateValidationRequested(object sender, ValidationRequestedEventArgs args)
         {
+            // Submit時に呼び出されるメソッド
+            // 検証属性による入力項目の検証エラー時は呼び出されない
             MessageList.ClearMessages();
             MessageStore.Clear();
         }
@@ -140,6 +159,7 @@ namespace BlazorApp.Pages
         /// <param name="args">args</param>
         private void HandleFieldChanged(object sender, FieldChangedEventArgs args)
         {
+            // 入力項目を変更してフォーカスアウトしたときに発生するイベント
             MessageList.ClearMessages();
         }
 
@@ -148,6 +168,10 @@ namespace BlazorApp.Pages
         /// </summary>
         private async Task HandleSearchValidSubmit()
         {
+            // 検証成功時(属性検証、HandleUpdateValidationRequested含む)に呼び出される
+            // OnSubmitは検証関係なく呼び出される
+            // OnInValidSubmitは検証失敗時に呼び出される
+            // Movie.razorのEditFormを参照
             MovieIndexResult.MovieList = await MovieIndexService.GetMovieList(MovieIndexForm);
         }
 
