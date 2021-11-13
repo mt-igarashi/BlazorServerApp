@@ -87,8 +87,8 @@ namespace BlazorApp.Pages
             if (EditMode)
             {
                 // 編集時はDBから映画を取得
-                // EntityFrameworkがモデルをトラッキングをしているので
-                // 必ずEntityFrameworkから取得する
+                // EntityFrameworkはモデルをトラッキングをしているので
+                // 更新時は必ずEntityFrameworkから取得する
                 var form = MovieCreateService.FindById(Id.Value);
                 if (form != null)
                 {
@@ -168,7 +168,14 @@ namespace BlazorApp.Pages
                 }
 
                 // 楽観ロックエラー
+                var success = false;
                 if (!messageList.HasDeletionMessage)
+                {
+                    success = await UpdateEditContext();
+                }
+
+                // 楽観ロックエラー時に映画を再取得出来た場合
+                if (success)
                 {
                     MergeMessages(messageList);
                     return;
@@ -200,6 +207,29 @@ namespace BlazorApp.Pages
                 await SetFormDataAsync(nameof(Movie), form);
                 NavigationManager.NavigateTo("/movie");
             }
+        }
+
+        /// <summary>
+        /// EditContextを更新します。
+        /// </summary>
+        /// <returns>true or false</returns>
+        private async Task<bool> UpdateEditContext()
+        {
+            var movie = await MovieCreateService.FindByIdAsync(MovieCreateForm.ID);
+            if (movie == null)
+            {
+                return false;
+            }
+
+            FormEditContext.OnValidationRequested -= HandleUpdateValidationRequested;
+
+            MovieCreateForm = movie;
+            FormEditContext = new EditContext(MovieCreateForm);
+            FormEditContext.OnValidationRequested += HandleUpdateValidationRequested;
+            MessageStore = new ValidationMessageStore(FormEditContext);
+
+            StateHasChanged();
+            return true;
         }
 
         /// <summary>

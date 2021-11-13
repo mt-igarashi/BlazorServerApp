@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp.Forms;
+using BlazorApp.Extensions;
 using BlazorApp.Models;
 
 namespace BlazorApp.Services
@@ -34,6 +35,7 @@ namespace BlazorApp.Services
         /// <returns>ジャンルリスト</returns>
         public Task<List<string>> GetGenreList()
         {
+            Context.RefreshAll();
             var genreQuery = from m in Context.Movie
                                        orderby m.Genre
                                        select m.Genre;
@@ -47,6 +49,7 @@ namespace BlazorApp.Services
         /// <returns>映画一覧</returns>
         public Task<List<Movie>> GetMovieList(MovieIndexForm form)
         {
+            Context.RefreshAll();
             var movies = from m in Context.Movie
                          select m;
             

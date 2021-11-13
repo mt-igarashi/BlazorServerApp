@@ -30,6 +30,8 @@ namespace BlazorApp.Services {
         /// <returns>映画エンティティ</returns>
         public Movie FindById(int id)
         {
+            var movie = Context.Movie.Find(id);
+            Context.Entry(movie).Reload();
             return Context.Movie.Find(id);
         }
 
@@ -40,6 +42,8 @@ namespace BlazorApp.Services {
         /// <returns>映画エンティティ</returns>
         public async Task<Movie> FindByIdAsync(int id)
         {
+            var movie = await Context.Movie.FindAsync(id);
+            await Context.Entry(movie).ReloadAsync();
             return await Context.Movie.FindAsync(id);
         }
 
@@ -75,6 +79,7 @@ namespace BlazorApp.Services {
             }
             catch (DbUpdateConcurrencyException)
             {
+                await Context.Entry(movie).ReloadAsync();
                 var isFound = await Context.Movie.FindAsync(movie.ID) != null;
                 if (isFound)
                 {
@@ -85,7 +90,6 @@ namespace BlazorApp.Services {
                     messageList.HasDeletionMessage = true;
                     messageList.AddErrorMessage("対象の映画は既に削除されています");   
                 }
-
             }
 
             return messageList;
@@ -99,9 +103,10 @@ namespace BlazorApp.Services {
         public async Task<MessageList> Delete(int id)
         {
             var messageList = new MessageList();
+            Movie movie = null;
             try
             {
-                var movie = await Context.Movie.FindAsync(id);
+                movie = await Context.Movie.FindAsync(id);
                 if (movie == null)
                 {
                     messageList.AddErrorMessage("既に削除されていいます");
@@ -113,6 +118,7 @@ namespace BlazorApp.Services {
             }
             catch (DbUpdateConcurrencyException)
             {
+                await Context.Entry(movie).ReloadAsync();
                 messageList.AddErrorMessage("既に削除されていいます");
             }
 
