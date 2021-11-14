@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp.Forms;
-using BlazorApp.Extensions;
 using BlazorApp.Models;
 
 namespace BlazorApp.Services
@@ -16,29 +15,53 @@ namespace BlazorApp.Services
     public class MovieIndexService : IMovieIndexService
     {
         /// <summary>
-        /// DBコンテキスト
+        /// DBコンテキストファクトリー
         /// </summary>
-        protected BlazorAppContext Context { get; set; }
+        public IDbContextFactory<BlazorAppContext> DbFactory { get; set; }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="context">DBコンテキスト</param>
-        public MovieIndexService(BlazorAppContext context)
+        /// <param name="factory">DBコンテキストファクトリー</param>
+        public MovieIndexService(IDbContextFactory<BlazorAppContext> factory)
         {
-            Context = context;
+            DbFactory = factory;
         }
 
         /// <summary>
         /// ジャンル一覧を取得します。
         /// </summary>
         /// <returns>ジャンルリスト</returns>
-        public Task<List<string>> GetGenreList()
+        public async Task<List<string>> GetGenreList()
         {
-            Context.RefreshAll();
-            var genreQuery = from m in Context.Movie
-                                       orderby m.Genre
-                                       select m.Genre;
+            using (var context = DbFactory.CreateDbContext())
+            using (var tran = await context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var genres = await GetGenreList(context);
+                    await tran.CommitAsync();
+                    return genres;
+                }
+                catch (Exception)
+                {
+                    await tran.RollbackAsync();
+                }
+
+                return new List<string>();
+            }
+        }
+
+        /// <summary>
+        /// ジャンル一覧を取得します。
+        /// </summary>
+        /// <param name="context">DBコンテキスト</param>
+        /// <returns>ジャンルリスト</returns>
+        public Task<List<string>> GetGenreList(BlazorAppContext context)
+        {
+            var genreQuery = from m in context.Movie
+                                    orderby m.Genre
+                                    select m.Genre;
             return genreQuery.Distinct().ToListAsync();
         }
 
@@ -47,20 +70,55 @@ namespace BlazorApp.Services
         /// </summary>
         /// <param name="form">MovieIndexForm</param>
         /// <returns>映画一覧</returns>
-        public Task<List<Movie>> GetMovieList(MovieIndexForm form)
+        public async Task<List<Movie>> GetMovieList(MovieIndexForm form)
         {
-            Context.RefreshAll();
-            var movies = from m in Context.Movie
+            using (var context = DbFactory.CreateDbContext())
+            using (var tran = await context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var movies = await GetMovieList(form, context);
+                    await tran.CommitAsync();
+                    return movies;
+                }
+                catch (Exception)
+                {
+                    await tran.RollbackAsync();
+                }
+
+                return new List<Movie>();
+            }
+        }
+
+        /// <summary>
+        /// 映画一覧を取得します。
+        /// </summary>
+        /// <param name="form">MovieIndexForm</param>
+        /// <param name="context">DBコンテキスト</param>
+        /// <returns>映画一覧</returns>
+        public Task<List<Movie>> GetMovieList(MovieIndexForm form, BlazorAppContext context)
+        {
+            var movies = from m in context.Movie
                          select m;
             
-            if (!String.IsNullOrEmpty(form.SearchString))
-            {
-                movies = movies.Where(s => s.Title.Contains(form.SearchString));
-            }
-
             if (!String.IsNullOrEmpty(form.MovieGenre))
             {
                 movies = movies.Where(x => x.Genre == form.MovieGenre);
+            }
+
+            if (!String.IsNullOrEmpty(form.SearchString))
+            {
+                movies = movies.Where(x => x.Title.Contains(form.SearchString));
+            }
+
+            if (form.From is not null)
+            {
+                movies = movies.Where(x => x.ReleaseDate >= form.From.Value);
+            }
+
+            if (form.To is not null)
+            {
+                movies = movies.Where(x => x.ReleaseDate <= form.To.Value);
             }
 
             return movies.ToListAsync();

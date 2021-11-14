@@ -1,0 +1,36 @@
+@page "/parts/date"
+@using BlazorApp.Components
+@inherits BlazorAppComponent
+
+開始日:<InputDate @bind-Value="From" @oninput="FromInput" />&nbsp;
+終了日:<InputDate @bind-Value="To" @oninput="ToInput"/>
+
+@code {
+    [Parameter]
+    public DateTime? From { get; set; }
+    
+    [Parameter]
+    public DateTime? To { get; set; }
+
+    [Parameter]
+    public EventCallback<DateTime?> FromChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<DateTime?> ToChanged { get; set; }
+
+    public async Task FromInput()
+    {
+        if (From.HasValue)
+        {
+            await FromChanged.InvokeAsync(From);
+        }
+    }
+
+    public async Task ToInput()
+    {
+        if (To.HasValue)
+        {
+            await ToChanged.InvokeAsync(To);
+        }
+    }
+}

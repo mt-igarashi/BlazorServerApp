@@ -89,6 +89,8 @@ namespace BlazorApp.Pages
                 // 編集時はDBから映画を取得
                 // EntityFrameworkはモデルをトラッキングをしているので
                 // 更新時は必ずEntityFrameworkから取得する
+                // インスタンスが変わるとEditContextの再生成が必要なので
+                // 別個Formクラスを作るほうが良い
                 var form = MovieCreateService.FindById(Id.Value);
                 if (form != null)
                 {
@@ -100,13 +102,16 @@ namespace BlazorApp.Pages
                     // 処理はOnAfterRenderAsyncで行う
                     // Javascriptを呼び出すメソッドは
                     // OnAfterRender、OnAfterRrenderAsyncで実行する
-                    // (上記関数以外は例外が発生する)
+                    // もしくはSubmitボタン押下時イベントで実行する
+                    // (OnInitializedは例外が発生する)
+                    // InMemoryCacheを使いOnInitializedで処理するほうが楽
                     NotFound = true;
                 }
             }
 
             FormEditContext = new EditContext(MovieCreateForm);
             FormEditContext.OnValidationRequested += HandleUpdateValidationRequested;
+            FormEditContext.OnFieldChanged += HandleFieldChanged;
             MessageStore = new ValidationMessageStore(FormEditContext);
         }
 
@@ -149,6 +154,16 @@ namespace BlazorApp.Pages
         }
 
         /// <summary>
+        /// フィールド変更イベント
+        /// </summary>
+        /// <param name="sender">sender</param>
+        /// <param name="args">args</param>
+        private void HandleFieldChanged(object sender, FieldChangedEventArgs args)
+        {
+            MessageList.ClearMessages();
+        }
+
+        /// <summary>
         /// 登録実行イベント
         /// </summary>
         private async Task HandleUpdateValidSubmit()
@@ -182,6 +197,7 @@ namespace BlazorApp.Pages
                 }
                 
                 // 対象映画が削除されていた場合
+                // 検索条件ありで映画一覧に表示する(エラーメッセージあり)
                 var form = await GetFormDataAsync<MovieIndexForm>(nameof(Movie));
                 form.MessageList = messageList;
 
@@ -199,7 +215,7 @@ namespace BlazorApp.Pages
                     messageList.AddSuccessMessage("登録が完了しました");
                 }
                 
-                // メッセージを検索条件なしで映画一覧に表示する
+                // 検索条件なしで映画一覧に表示する(メッセージあり)
                 var form = new MovieIndexForm(){
                     MessageList = messageList
                 };
@@ -222,10 +238,12 @@ namespace BlazorApp.Pages
             }
 
             FormEditContext.OnValidationRequested -= HandleUpdateValidationRequested;
+            FormEditContext.OnFieldChanged -= HandleFieldChanged;
 
             MovieCreateForm = movie;
             FormEditContext = new EditContext(MovieCreateForm);
             FormEditContext.OnValidationRequested += HandleUpdateValidationRequested;
+            FormEditContext.OnFieldChanged += HandleFieldChanged;
             MessageStore = new ValidationMessageStore(FormEditContext);
 
             StateHasChanged();
@@ -240,6 +258,7 @@ namespace BlazorApp.Pages
             if (FormEditContext is not null)
             {
                 FormEditContext.OnValidationRequested -= HandleUpdateValidationRequested;
+                FormEditContext.OnFieldChanged -= HandleFieldChanged;
             }
         }
     }

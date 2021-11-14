@@ -44,9 +44,19 @@ namespace BlazorApp
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { "application/octet-stream" });
             });
-            services.AddDbContext<BlazorAppContext>(options =>
-                  options.UseSqlite(Configuration.GetConnectionString("BlazorAppDatabase")));
-            
+
+            // DIの有効期間がMVCモデルと異なるので注意が必要
+            // Blazor ServerはURLが同じ場合はコンポーネント内の変数がその間保持される
+            // (Submitボタン押下しても変数を保持している)
+            // 注意点として/movie/createと/movie/create/1は同じURLとして扱われる
+            // DIでインジェクションした変数も同じ扱い
+            // DbContextはマルチスレッド非対応なので問題が起きる            
+            //services.AddDbContext<BlazorAppContext>(options =>
+            //      options.UseSqlite(Configuration.GetConnectionString("BlazorAppDatabase")));
+
+            services.AddDbContextFactory<BlazorAppContext>(options =>
+                options.UseSqlite(Configuration.GetConnectionString("BlazorAppDatabase")));
+
             // DIコンテナに対象クラスを登録
             RegisterDiContainer(services);
         }

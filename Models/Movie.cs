@@ -7,6 +7,7 @@ namespace BlazorApp.Models
     public class Movie
     {
         public int ID { get; set; }
+        
         [Display(Name = "タイトル")]
         [StringLength(60, MinimumLength = 3, ErrorMessage = "{0}は{2}文字以上{1}文字以内で入力してください")]
         [Required(ErrorMessage = "{0}は必須項目です")]

@@ -1,3 +1,5 @@
+
+using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp.Messages;
@@ -10,17 +12,17 @@ namespace BlazorApp.Services {
     public class MovieCreateService : IMovieCreateService
     {
         /// <summary>
-        /// DBコンテキスト
+        /// DBコンテキストファクトリー
         /// </summary>
-        protected BlazorAppContext Context { get; set; }
+        public IDbContextFactory<BlazorAppContext> DbFactory { get; set; }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="context">DBコンテキスト</param>
-        public MovieCreateService(BlazorAppContext context)
+        /// <param name="factory">DBコンテキストファクトリー</param>
+        public MovieCreateService(IDbContextFactory<BlazorAppContext> factory)
         {
-            Context = context;
+            DbFactory = factory;
         }
 
         /// <summary>
@@ -30,9 +32,33 @@ namespace BlazorApp.Services {
         /// <returns>映画エンティティ</returns>
         public Movie FindById(int id)
         {
-            var movie = Context.Movie.Find(id);
-            Context.Entry(movie).Reload();
-            return Context.Movie.Find(id);
+            using (var context = DbFactory.CreateDbContext())
+            using (var tran = context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var movie =  FindById(id, context);
+                    tran.Commit();
+                    return movie;
+                }
+                catch (Exception)
+                {
+                    tran.Rollback();
+                }
+
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 指定したIDに紐付く映画を取得します。
+        /// </summary>
+        /// <param name="id">ID</param>
+        /// <param name="context">DBコンテキスト</param>
+        /// <returns>映画エンティティ</returns>
+        public Movie FindById(int id, BlazorAppContext context)
+        {
+            return context.Movie.Find(id);
         }
 
         /// <summary>
@@ -42,21 +68,73 @@ namespace BlazorApp.Services {
         /// <returns>映画エンティティ</returns>
         public async Task<Movie> FindByIdAsync(int id)
         {
-            var movie = await Context.Movie.FindAsync(id);
-            await Context.Entry(movie).ReloadAsync();
-            return await Context.Movie.FindAsync(id);
+            using (var context = DbFactory.CreateDbContext())
+            using (var tran = await context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var movie = await FindByIdAsync(id, context);
+                    await tran.CommitAsync();
+                    return movie;
+                }
+                catch (Exception)
+                {
+                    await tran.RollbackAsync();
+                }
+
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 指定したIDに紐付く映画を取得します。
+        /// </summary>
+        /// <param name="id">ID</param>
+        /// <param name="context">DBコンテキスト</param>
+        /// <returns>映画エンティティ</returns>
+        public async Task<Movie> FindByIdAsync(int id, BlazorAppContext context)
+        {
+            return await context.Movie.FindAsync(id);
         }
 
         /// <summary>
         /// 映画を登録します。
         /// </summary>
+        /// <param name="movie">映画エンティティ</param>
+        /// <returns>メッセージリスト</returns>
         public async Task<MessageList> Register(Movie movie)
+        {
+            using (var context = DbFactory.CreateDbContext())
+            using (var tran = await context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var messages = await Register(movie, context);
+                    await tran.CommitAsync();
+                    return messages;
+                }
+                catch (Exception)
+                {
+                    await tran.RollbackAsync();
+                }
+
+                return new MessageList();
+            }
+        }
+
+        /// <summary>
+        /// 映画を登録します。
+        /// </summary>
+        /// <param name="movie">映画エンティティ</param>
+        /// <param name="context">DBコンテキスト</param>
+        /// <returns>メッセージリスト</returns>
+        public async Task<MessageList> Register(Movie movie, BlazorAppContext context)
         {
             var messageList = new MessageList();
             try
             {
-                Context.Add(movie);
-                await Context.SaveChangesAsync();
+                context.Add(movie);
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -64,23 +142,50 @@ namespace BlazorApp.Services {
             }
 
             return messageList;
-        } 
+        }
 
         /// <summary>
         /// 映画を更新します。
         /// </summary>
+        /// <param name="movie">映画エンティティ</param>
+        /// <returns>メッセージリスト</returns>
         public async Task<MessageList> Update(Movie movie)
+        {
+            using (var context = DbFactory.CreateDbContext())
+            using (var tran = await context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var messages = await Update(movie, context);
+                    await tran.CommitAsync();
+                    return messages;
+                }
+                catch (Exception)
+                {
+                    await tran.RollbackAsync();
+                }
+
+                return new MessageList();
+            }
+        }
+
+        /// <summary>
+        /// 映画を更新します。
+        /// </summary>
+        /// <param name="movie">映画エンティティ</param>
+        /// <param name="context">DBコンテキスト</param>
+        /// <returns>メッセージリスト</returns>
+        public async Task<MessageList> Update(Movie movie, BlazorAppContext context)
         {
             var messageList = new MessageList();
             try
             {
-                Context.Update(movie);
-                await Context.SaveChangesAsync();
+                context.Update(movie);
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                await Context.Entry(movie).ReloadAsync();
-                var isFound = await Context.Movie.FindAsync(movie.ID) != null;
+                var isFound = await context.Movie.FindAsync(movie.ID) != null;
                 if (isFound)
                 {
                     messageList.AddErrorMessage("既に更新されている為、再度処理を行ってください");   
@@ -102,23 +207,48 @@ namespace BlazorApp.Services {
         /// <returns>メッセージリスト</returns>
         public async Task<MessageList> Delete(int id)
         {
+            using (var context = DbFactory.CreateDbContext())
+            using (var tran = await context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var messages = await Delete(id, context);
+                    await tran.CommitAsync();
+                    return messages;
+                }
+                catch (Exception)
+                {
+                    await tran.RollbackAsync();
+                }
+
+                return new MessageList();
+            }
+        }
+
+        /// <summary>
+        /// 映画を削除します。
+        /// </summary>
+        /// <param name="id">ID</param>
+        /// <param name="context">DBコンテキスト</param>
+        /// <returns>メッセージリスト</returns>
+        public async Task<MessageList> Delete(int id, BlazorAppContext context)
+        {
             var messageList = new MessageList();
             Movie movie = null;
             try
             {
-                movie = await Context.Movie.FindAsync(id);
+                movie = await context.Movie.FindAsync(id);
                 if (movie == null)
                 {
                     messageList.AddErrorMessage("既に削除されていいます");
                     return messageList;
                 }
 
-                Context.Movie.Remove(movie);
-                await Context.SaveChangesAsync();
+                context.Movie.Remove(movie);
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                await Context.Entry(movie).ReloadAsync();
                 messageList.AddErrorMessage("既に削除されていいます");
             }
 

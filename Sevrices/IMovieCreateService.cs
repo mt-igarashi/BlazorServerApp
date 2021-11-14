@@ -19,8 +19,24 @@ namespace BlazorApp.Services {
         /// 指定したIDに紐付く映画を取得します。
         /// </summary>
         /// <param name="id">ID</param>
+        /// <param name="context">DBコンテキスト</param>
+        /// <returns>映画エンティティ</returns>
+        Movie FindById(int id, BlazorAppContext cotext);
+
+        /// <summary>
+        /// 指定したIDに紐付く映画を取得します。
+        /// </summary>
+        /// <param name="id">ID</param>
         /// <returns>映画エンティティ</returns>
         Task<Movie> FindByIdAsync(int id);
+
+        /// <summary>
+        /// 指定したIDに紐付く映画を取得します。
+        /// </summary>
+        /// <param name="id">ID</param>
+        /// <param name="context">DBコンテキスト</param>
+        /// <returns>映画エンティティ</returns>
+        Task<Movie> FindByIdAsync(int id, BlazorAppContext cotext);
 
         /// <summary>
         /// 映画を登録します。
@@ -28,6 +44,14 @@ namespace BlazorApp.Services {
         /// <param name="movie">映画エンティティ</param>
         /// <returns>メッセージリスト</returns>
         Task<MessageList> Register(Movie movie);
+
+        /// <summary>
+        /// 映画を登録します。
+        /// </summary>
+        /// <param name="movie">映画エンティティ</param>
+        /// <param name="context">DBコンテキスト</param>
+        /// <returns>メッセージリスト</returns>
+        Task<MessageList> Register(Movie movie, BlazorAppContext cotext);
  
         /// <summary>
         /// 映画を更新します。
@@ -37,11 +61,27 @@ namespace BlazorApp.Services {
         Task<MessageList> Update(Movie movie);
 
         /// <summary>
+        /// 映画を更新します。
+        /// </summary>
+        /// <param name="movie">映画エンティティ</param>
+        /// <param name="context">DBコンテキスト</param>
+        /// <returns>メッセージリスト</returns>
+        Task<MessageList> Update(Movie movie, BlazorAppContext cotext);
+
+        /// <summary>
         /// 映画を削除します。
         /// </summary>
         /// <param name="id">ID</param>
         /// <returns>メッセージリスト</returns>
         Task<MessageList> Delete(int id);
+
+        /// <summary>
+        /// 映画を削除します。
+        /// </summary>
+        /// <param name="id">ID</param>
+        /// <param name="context">DBコンテキスト</param>
+        /// <returns>メッセージリスト</returns>
+        Task<MessageList> Delete(int id, BlazorAppContext cotext);
 
         /// <summary>
         /// 検証を実行します。

@@ -261,6 +261,7 @@ namespace BlazorApp.Components
             {
                 MessageList.SuccessMessageList.AddRange(messageList.SuccessMessageList);
                 MessageList.ErrorMessageList.AddRange(messageList.ErrorMessageList);
+
                 if (clear)
                 {
                     messageList.ClearMessages();
@@ -276,18 +277,19 @@ namespace BlazorApp.Components
         /// <param name="clear">クリアフラグ</param>
         protected void MergeMessages(MessageList messageList, ValidationMessageStore messageStore, bool clear = false)
         {
-            if (messageStore is not null)
-            {
-                foreach (var store in messageList.ValidationMessageList)
-                {
-                    messageStore.Add(store.Accessor, store.Message);
-                }
-            }
-
             if (messageList is not null)
             {
                 MessageList.SuccessMessageList.AddRange(messageList.SuccessMessageList);
                 MessageList.ErrorMessageList.AddRange(messageList.ErrorMessageList);
+
+                if (messageStore is not null)
+                {
+                    foreach (var store in messageList.ValidationMessageList)
+                    {
+                        messageStore.Add(store.Accessor, store.Message);
+                    }
+                }
+
                 if (clear)
                 {
                     messageList.ClearMessages();

@@ -68,11 +68,13 @@ namespace BlazorApp.Pages
             if (form is not null)
             {
                 // EditContextを使う場合はMovieIndexFormをそのまま置き換えると
-                // 検証属性のバリデーションが動かなくなる(MovieindexFormの属性を参照)
+                // 検証属性のバリデーションが動かなくなる(MovieindexFormの検証属性を参照)
                 // MovieIndexFormを置き換える場合はEditContextを再構成する
-                // MovieIndexForm置き換えない場合はプロパティをコピーする
+                // MovieIndexFormを置き換えない場合はプロパティをコピーする
                 MovieIndexForm.SearchString = form.SearchString;
                 MovieIndexForm.MovieGenre = form.MovieGenre;
+                MovieIndexForm.From = form.From;
+                MovieIndexForm.To = form.To;
                 MovieIndexForm.MessageList = form.MessageList;
                 StateHasChanged();
             }
@@ -87,8 +89,12 @@ namespace BlazorApp.Pages
     　　{
             // OnInitialized、OnInitializedAsyncはインスタンス生成時に１回だけ呼び出される
             // タイミングはURLが変わったタイミング(URLバーからの変更はインスタンスが再生成される)
+            // 注意点として/movie/createと/movie/create/1は同じURLとして扱われる
+            // (NavigationManagerで遷移してもインスタンスは再生成されない)
+
             // EditContextの設定はOnInitializedで行う
             // OnInitializedAsyncAsyncメソッドで行うと例外が発生する
+            // EditFormタグはモデル(このサンプルの場合はFormクラス)かEditContextのどちらかが必要
             FormEditContext = new EditContext(MovieIndexForm);
             FormEditContext.OnValidationRequested += HandleUpdateValidationRequested;
             FormEditContext.OnFieldChanged += HandleFieldChanged;
@@ -113,7 +119,8 @@ namespace BlazorApp.Pages
         protected async override Task OnParametersSetAsync()
         {
             // フォームのパラメータが変更されたときはこのイベントは呼び出されない
-            // Initializedの後かParameter属性の値が変更された場合に呼び出される(IDプロパティを参照)
+            // Initializedの後かParameter属性の値が変更された場合に呼び出される
+            // (Parameter属性はIDプロパティを参照)
             await base.OnParametersSetAsync();
             await DeleteMovieIfExist();
         }
@@ -134,9 +141,6 @@ namespace BlazorApp.Pages
                 // 初回描画時は画面に反映されないので変更したことを通知する
                 StateHasChanged();
             }
-
-            // 画面描画イベントは複数回発生するのでその対処が必要
-            await SetFormDataAsync(nameof(Movie), MovieIndexForm);
         }
 
         /// <summary>
@@ -160,7 +164,14 @@ namespace BlazorApp.Pages
         private void HandleFieldChanged(object sender, FieldChangedEventArgs args)
         {
             // 入力項目を変更してフォーカスアウトしたときに発生するイベント
+            // InputDateは入力毎にイベントが発生
             MessageList.ClearMessages();
+
+            if (args.FieldIdentifier.FieldName == nameof(MovieIndexForm.To))
+            {
+                var field = FormEditContext.Field(nameof(MovieIndexForm.From));
+                FormEditContext.NotifyFieldChanged(field);
+            }
         }
 
         /// <summary>
@@ -171,8 +182,13 @@ namespace BlazorApp.Pages
             // 検証成功時(属性検証、HandleUpdateValidationRequested含む)に呼び出される
             // OnSubmitは検証関係なく呼び出される
             // OnInValidSubmitは検証失敗時に呼び出される
-            // Movie.razorのEditFormを参照
+            // 宣言個所はMovie.razorのEditFormを参照
             MovieIndexResult.MovieList = await MovieIndexService.GetMovieList(MovieIndexForm);
+
+            // Submitボタン押下時もJavascriptを呼び出す関数が使える
+            // OnAfterRender、OnAfterRenderAsyncは部分更新のためか
+            // 複数回発生するのでその対処が必要
+            await SetFormDataAsync(nameof(Movie), MovieIndexForm);
         }
 
         /// <summary>

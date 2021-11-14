@@ -25,7 +25,10 @@
             }
         </InputSelect>
 
-        Title: <InputText @bind-Value="MovieIndexForm.SearchString" />
+        タイトル: <InputText @bind-Value="MovieIndexForm.SearchString" />&nbsp;
+        開始日:<InputDate @bind-Value="MovieIndexForm.From" />&nbsp;
+        終了日:<InputDate @bind-Value="MovieIndexForm.To" />
+        <br>
         <input type="submit" value="フィルター" />
     </p>
 
