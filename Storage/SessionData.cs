@@ -16,14 +16,14 @@ namespace BlazorApp.Storage
         /// フォームデータを取得します。
         /// </summary>
         /// <typeparam name="T">格納した型</typeparam>
-        public T GetFormData<T>()
+        public T GetFormData<T>() where T : class, new()
         {
             if (!string.IsNullOrWhiteSpace(FormData)) 
             {
                 return JsonConvert.DeserializeObject<T>(FormData);
             };
 
-            return default(T);
+            return new T();
         }
     }
 }
