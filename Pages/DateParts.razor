@@ -5,24 +5,29 @@
 @using BlazorApp.Helpers;
 @inherits BlazorAppComponent
 
-開始日:<InputDate @bind-Value="FromDate" @oninput="OnFromDateChanged" />&nbsp;
-終了日:<InputDate @bind-Value="ToDate" @oninput="OnToDateChanged"/>
+開始日:<InputDate class="@FromCss" @bind-Value="FromDate" @oninput="OnFromDateChanged" />&nbsp;
+終了日:<InputDate class="@ToCss" @bind-Value="ToDate" @oninput="OnToDateChanged"/>
 
 @code {
+
     [Parameter]
     public EditContext EditContext { get; set; }
 
     [Parameter]
-    public string FromName { get; set; }
+    public string FromName { get; set; } = "From";
+
+    [Parameter]
+    public string ToName { get; set; } = "To";
 
     [Parameter]
     public DateTime? FromDate { get; set; }
-    
-    [Parameter]
-    public string ToName { get; set; }
 
     [Parameter]
     public DateTime? ToDate { get; set; }
+
+    public string FromCss { get; set; }
+
+    public string ToCss { get; set; }
 
     [Parameter]
     public EventCallback<DateTime?> FromDateChanged { get; set; }
@@ -35,9 +40,11 @@
         DateTime date;
         var success = DateTime.TryParseExact(args.Value.ToString(), "yyyy-MM-dd", CultureInfo.CurrentCulture, DateTimeStyles.None, out date);
         await FromDateChanged.InvokeAsync(success ? date : null);
+
         if (EditContext is not null)
         {
-            EditContextHelper.NotifyFieldChanged(EditContext, FromName);
+            var hasError = EditContextHelper.NotifyFieldChanged(EditContext, FromName);
+            FromCss = EditContextHelper.GetFieldCss(hasError);
         }
     }
 
@@ -49,6 +56,10 @@
         if (EditContext is not null)
         {
             EditContextHelper.NotifyFieldChanged(EditContext, ToName);
+            ToCss = EditContextHelper.GetFieldCss(false);
+
+            var hasError = EditContextHelper.HasValidationError(EditContext, FromName);
+            FromCss = EditContextHelper.GetFieldCss(hasError);
         }
     }
 }
