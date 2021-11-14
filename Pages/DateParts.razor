@@ -1,36 +1,54 @@
 @page "/parts/date"
+@using System.Globalization;
+@using Microsoft.AspNetCore.Components.Forms;
 @using BlazorApp.Components
+@using BlazorApp.Helpers;
 @inherits BlazorAppComponent
 
-開始日:<InputDate @bind-Value="From" @oninput="FromInput" />&nbsp;
-終了日:<InputDate @bind-Value="To" @oninput="ToInput"/>
+開始日:<InputDate @bind-Value="FromDate" @oninput="OnFromDateChanged" />&nbsp;
+終了日:<InputDate @bind-Value="ToDate" @oninput="OnToDateChanged"/>
 
 @code {
     [Parameter]
-    public DateTime? From { get; set; }
+    public EditContext EditContext { get; set; }
+
+    [Parameter]
+    public string FromName { get; set; }
+
+    [Parameter]
+    public DateTime? FromDate { get; set; }
     
     [Parameter]
-    public DateTime? To { get; set; }
+    public string ToName { get; set; }
 
     [Parameter]
-    public EventCallback<DateTime?> FromChanged { get; set; }
+    public DateTime? ToDate { get; set; }
 
     [Parameter]
-    public EventCallback<DateTime?> ToChanged { get; set; }
+    public EventCallback<DateTime?> FromDateChanged { get; set; }
 
-    public async Task FromInput()
+    [Parameter]
+    public EventCallback<DateTime?> ToDateChanged { get; set; }
+
+    public async Task OnFromDateChanged(ChangeEventArgs args)
     {
-        if (From.HasValue)
+        DateTime date;
+        var success = DateTime.TryParseExact(args.Value.ToString(), "yyyy-MM-dd", CultureInfo.CurrentCulture, DateTimeStyles.None, out date);
+        await FromDateChanged.InvokeAsync(success ? date : null);
+        if (EditContext is not null)
         {
-            await FromChanged.InvokeAsync(From);
+            EditContextHelper.NotifyFieldChanged(EditContext, FromName);
         }
     }
 
-    public async Task ToInput()
+    public async Task OnToDateChanged(ChangeEventArgs args)
     {
-        if (To.HasValue)
+        DateTime date;
+        var success = DateTime.TryParseExact(args.Value.ToString(), "yyyy-MM-dd", CultureInfo.CurrentCulture, DateTimeStyles.None, out date);
+        await ToDateChanged.InvokeAsync(success ? date : null);
+        if (EditContext is not null)
         {
-            await ToChanged.InvokeAsync(To);
+            EditContextHelper.NotifyFieldChanged(EditContext, ToName);
         }
     }
 }
