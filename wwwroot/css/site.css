@@ -64,3 +64,14 @@ a, .btn-link {
      background:#FFEBE8;
      border:2px solid #990000;
 }
+
+.table_line {
+    display: table;
+    width: 1000px;
+}
+
+.table_block {
+    display: table-cell;
+    border: solid 1px #999;
+    width: 150px;
+}

@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
+using Newtonsoft.Json;
 using BlazorApp.Components;
 using BlazorApp.Forms;
 using BlazorApp.Results;
@@ -12,7 +14,7 @@ namespace BlazorApp.Pages
     /// <summary>
     /// 映画一覧クラス
     /// </summary>
-    public partial class Movie : BlazorAppComponent, IDisposable
+    public partial class MovieVue : BlazorAppComponent, IDisposable
     {
         /// <summary>
         /// 映画作成サービス
@@ -31,6 +33,17 @@ namespace BlazorApp.Pages
         /// </summary>
         [Inject]
         public NavigationManager NavigationManager { get; set; }
+
+        /// <summary>
+        /// JSランタイム
+        /// </summary>
+        [Inject]
+        public IJSRuntime Js { get; set; }
+
+        /// <summary>
+        /// Jsオブジェクト参照
+        /// </summary>
+        public IJSObjectReference module { get; set; }
 
         /// <summary>
         /// 画面フォーム
@@ -64,13 +77,9 @@ namespace BlazorApp.Pages
         /// <returns></returns>
         protected override async Task<string> RestoreFormDataAsync()
         {
-            var form = await GetFormDataAsync<MovieIndexForm>(nameof(Movie));
+            var form = await GetFormDataAsync<MovieIndexForm>(nameof(MovieVue));
             if (form is not null)
             {
-                // EditContextを使う場合はMovieIndexFormをそのまま置き換えると
-                // 検証属性のバリデーションが動かなくなる(MovieindexFormの検証属性を参照)
-                // MovieIndexFormを置き換える場合はEditContextを再構成する
-                // MovieIndexFormを置き換えない場合はプロパティをコピーする
                 MovieIndexForm.SearchString = form.SearchString;
                 MovieIndexForm.MovieGenre = form.MovieGenre;
                 MovieIndexForm.From = form.From;
@@ -78,7 +87,7 @@ namespace BlazorApp.Pages
                 MovieIndexForm.MessageList = form.MessageList;
                 StateHasChanged();
             }
-            return await Task.FromResult(nameof(Movie));
+            return await Task.FromResult(nameof(MovieVue));
         }
 
         /// <summary>
@@ -87,14 +96,6 @@ namespace BlazorApp.Pages
         /// <returns>Task</returns>
         protected override void OnInitialized()
     　　{
-            // OnInitialized、OnInitializedAsyncはインスタンス生成時に１回だけ呼び出される
-            // タイミングはURLが変わったタイミング(URLバーからの変更はインスタンスが再生成される)
-            // 注意点として/movie/createと/movie/create/1は同じURLとして扱われる
-            // (NavigationManagerで遷移してもインスタンスは再生成されない)
-
-            // EditContextの設定はOnInitializedで行う
-            // OnInitializedAsyncAsyncメソッドで行うと例外が発生する
-            // EditFormタグはモデル(このサンプルの場合はFormクラス)かEditContextのどちらかが必要
             FormEditContext = new EditContext(MovieIndexForm);
             FormEditContext.OnValidationRequested += HandleUpdateValidationRequested;
             FormEditContext.OnFieldChanged += HandleFieldChanged;
@@ -107,8 +108,6 @@ namespace BlazorApp.Pages
         /// <returns>Task</returns>
         protected override async Task OnInitializedAsync()
     　　{
-            // OnInitializedAsyncではDBアクセスなど重い処理を行う
-            // awaitしている間に画面が描画される
             await base.OnInitializedAsync();
             MovieIndexResult.GenreList = await MovieIndexService.GetGenreList();
         }
@@ -118,11 +117,7 @@ namespace BlazorApp.Pages
         /// </summary>
         protected async override Task OnParametersSetAsync()
         {
-            // フォームのパラメータが変更されたときはこのイベントは呼び出されない
-            // Initializedの後かParameter属性の値が変更された場合に呼び出される
-            // (Parameter属性はIDプロパティを参照)
             await base.OnParametersSetAsync();
-            await DeleteMovieIfExist();
         }
 
         /// <summary>
@@ -134,13 +129,15 @@ namespace BlazorApp.Pages
             await base.OnAfterRenderAsync(firstRender);
             if (firstRender)
             {
-                // firstRenderで判定することにより初回表示に１回だけ呼び出されるのが保証される
                 MovieIndexResult.MovieList = await MovieIndexService.GetMovieList(MovieIndexForm);
                 MergeMessages(MovieIndexForm.MessageList, true);
+                
+                module = await Js.InvokeAsync<IJSObjectReference>("import", "./js/MovieVue.js");
+                await module.InvokeVoidAsync("getMovieList", JsonConvert.SerializeObject(MovieIndexResult.MovieList));
 
-                // 初回描画時は画面に反映されないので変更したことを通知する
                 StateHasChanged();
             }
+            await DeleteMovieIfExist();
         }
 
         /// <summary>
@@ -150,8 +147,6 @@ namespace BlazorApp.Pages
         /// <param name="args">args</param>
         private void HandleUpdateValidationRequested(object sender, ValidationRequestedEventArgs args)
         {
-            // Submit時に呼び出されるメソッド
-            // 検証属性による入力項目の検証エラー時は呼び出されない
             MessageList.ClearMessages();
             MessageStore.Clear();
         }
@@ -163,11 +158,8 @@ namespace BlazorApp.Pages
         /// <param name="args">args</param>
         private void HandleFieldChanged(object sender, FieldChangedEventArgs args)
         {
-            // 入力項目を変更してフォーカスアウトしたときに発生するイベント
-            // InputDateは日付に変換する、もしくは、変換できない時にイベントが発生
             MessageList.ClearMessages();
 
-            // 開始日のバリデーションを行う為、変更イベントを通知する
             if (args.FieldIdentifier.FieldName == nameof(MovieIndexForm.To))
             {
                 var field = FormEditContext.Field(nameof(MovieIndexForm.From));
@@ -180,16 +172,9 @@ namespace BlazorApp.Pages
         /// </summary>
         private async Task HandleSearchValidSubmit()
         {
-            // 検証成功時(属性検証、HandleUpdateValidationRequested含む)に呼び出される
-            // OnSubmitは検証関係なく呼び出される
-            // OnInValidSubmitは検証失敗時に呼び出される
-            // 宣言個所はMovie.razorのEditFormを参照
             MovieIndexResult.MovieList = await MovieIndexService.GetMovieList(MovieIndexForm);
-
-            // Submitボタン押下時もJavascriptを呼び出す関数が使える
-            // OnAfterRender、OnAfterRenderAsyncは部分更新のためか
-            // 複数回発生するのでその対処が必要
-            await SetFormDataAsync(nameof(Movie), MovieIndexForm);
+            await SetFormDataAsync(nameof(MovieVue), MovieIndexForm);
+            await module.InvokeVoidAsync("getMovieList", JsonConvert.SerializeObject(MovieIndexResult.MovieList));
         }
 
         /// <summary>
@@ -209,6 +194,7 @@ namespace BlazorApp.Pages
             {
                 messageList.AddSuccessMessage("削除に成功しました");
                 MovieIndexResult.MovieList = await MovieIndexService.GetMovieList(MovieIndexForm);
+                await module.InvokeVoidAsync("getMovieList", JsonConvert.SerializeObject(MovieIndexResult.MovieList));
             }
             MergeMessages(messageList);
 
@@ -224,6 +210,11 @@ namespace BlazorApp.Pages
             {
                 FormEditContext.OnValidationRequested -= HandleUpdateValidationRequested;
                 FormEditContext.OnFieldChanged -= HandleFieldChanged;
+            }
+
+            if (module is not null)
+            {
+                module.DisposeAsync();
             }
         }
     }

@@ -1,0 +1,58 @@
+@page "/movie/vue/{Id:int?}"
+@using BlazorApp.Components;
+@using BlazorApp.Helpers;
+@inherits BlazorAppComponent
+
+<Message MessageList=MessageList />
+<br>
+
+<h2>映画一覧</h2>
+
+<p>
+    <a href="/movie/create">新規作成</a>
+</p>
+
+<EditForm EditContext="@FormEditContext" OnValidSubmit="@HandleSearchValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <p>
+        <InputSelect @bind-Value="MovieIndexForm.MovieGenre">
+            <option value="">All</option>
+            @foreach (var item in MovieIndexResult.GenreList)
+            {
+                <option value="@item">@item</option>
+            }
+        </InputSelect>
+
+        タイトル: <InputText @bind-Value="MovieIndexForm.SearchString" />&nbsp;
+        <DateParts
+            EditContext="FormEditContext"
+            @bind-FromDate="MovieIndexForm.From"
+            @bind-ToDate="MovieIndexForm.To" />
+        <br>
+        <input type="submit" value="フィルター" />
+    </p>
+
+</EditForm>
+
+<div class="table" style="padding-bottom: 0px;margin-bottom: 0px;">
+	<div class="table_line">
+		<div class="table_block">@MovieIndexResult.GetDisplayName(m => m.MovieList[0].Title)</div>
+		<div class="table_block">@MovieIndexResult.GetDisplayName(m => m.MovieList[0].ReleaseDate)</div>
+		<div class="table_block">@MovieIndexResult.GetDisplayName(m => m.MovieList[0].Genre)</div>
+        <div class="table_block">@MovieIndexResult.GetDisplayName(m => m.MovieList[0].Price)</div>
+        <div class="table_block">@MovieIndexResult.GetDisplayName(m => m.MovieList[0].Rating)</div>
+	</div>
+</div>
+<div id="app" class="table">
+    <draggable tag="div">
+        <div class="table_line" v-for="item, index in items" :key="item.ID" >
+            <div class="table_block">{{item.Title}}</div>
+            <div class="table_block">{{item.ReleaseDate}}</div>
+            <div class="table_block">{{item.Genre}}</div>
+            <div class="table_block">{{item.Price}}</div>
+            <div class="table_block">{{item.Rating}}</div>
+        </div>
+    </draggable>
+</div>
