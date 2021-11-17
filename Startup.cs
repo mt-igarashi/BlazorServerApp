@@ -6,14 +6,16 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using BlazorApp.Data;
 using Microsoft.AspNetCore.ResponseCompression;
+using Radzen;
+using Radzen.Blazor;
 using Server.Hubs;
+using BlazorApp.Data;
 using BlazorApp.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace BlazorApp
 {
@@ -38,12 +40,20 @@ namespace BlazorApp
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { "application/octet-stream" });
             });
+
+            // サンプル画面で使うサービスをDIコンテナに登録
+            services.AddSingleton<WeatherForecastService>();
+
+            // Radzenで使用するサービスをDIコンテナに登録
+            services.AddScoped<DialogService>();
+            services.AddScoped<NotificationService>();
+            services.AddScoped<TooltipService>();
+            services.AddScoped<ContextMenuService>();
 
             // DIの有効期間がMVCモデルと異なるので注意が必要
             // Blazor ServerはURLが同じ場合はコンポーネント内の変数がその間保持される

@@ -8,11 +8,11 @@ namespace BlazorApp.Results
                 /// <summary>
         /// 映画ジャンルリスト
         /// </summary>
-        public List<string> GenreList { get; set; } = new List<string>();
+        public List<string> GenreList { get; set; } = new ();
 
         /// <summary>
         /// 映画リスト
         /// </summary>
-        public List<Movie> MovieList { get; set; } = new List<Movie>();
+        public List<Movie> MovieList { get; set; } = new ();
     }
 }

@@ -7,6 +7,9 @@ dotnet add package Microsoft.EntityFrameworkCore --version 5.0.11
 ■JsonConvertのクラスが存在しない場合は以下をインストール
 dotnet add package Newtonsoft.Json --version 13.0.1
 
+■Radzenのクラスが存在しない場合は以下をインストール
+dotnet add package Radzen.Blazor
+
 ■デバッグできない場合
 64bitの.NETをインストールする
 

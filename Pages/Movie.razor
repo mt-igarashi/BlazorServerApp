@@ -1,6 +1,11 @@
 @page "/movie/{Id:int?}"
-@using BlazorApp.Components;
-@using BlazorApp.Helpers;
+
+@using System.Linq
+@using Radzen
+@using BlazorApp.Components
+@using BlazorApp.Helpers
+@using BlazorApp.Pages.Parts;
+
 @inherits BlazorAppComponent
 
 <Message MessageList=MessageList />
@@ -8,34 +13,68 @@
 
 <h2>映画一覧</h2>
 
-<p>
-    <a href="/movie/create">新規作成</a>
-</p>
-
 <EditForm EditContext="@FormEditContext" OnValidSubmit="@HandleSearchValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <p>
-        <InputSelect @bind-Value="MovieIndexForm.MovieGenre">
-            <option value="">All</option>
-            @foreach (var item in MovieIndexResult.GenreList)
-            {
-                <option value="@item">@item</option>
-            }
-        </InputSelect>
-
-        タイトル: <InputText @bind-Value="MovieIndexForm.SearchString" />&nbsp;
-        <DateParts
-            EditContext="FormEditContext"
-            @bind-FromDate="MovieIndexForm.From"
-            @bind-ToDate="MovieIndexForm.To" />
-        <br>
-        <input type="submit" value="フィルター" />
-    </p>
-
+    <div class="row">
+        <div class="col-2 pb-3 col-h">
+            @MovieIndexForm.GetDisplayName(m => m.MovieGenre)
+        </div>
+        <div class="col-10 pb-3 col-h">
+            <RadzenDropDown AllowClear="true" TValue="string" AllowVirtualization="true" Style="width:300px" @bind-Value="MovieIndexForm.MovieGenre"
+                            AllowFiltering="true" Data=@(MovieIndexResult.GenreList.Select(x => new { Name = x, ID = x })) TextProperty="Name" ValueProperty="ID" />
+            <!-- <InputSelect @bind-Value="MovieIndexForm.MovieGenre">
+                <option value="">All</option>
+                @foreach (var item in MovieIndexResult.GenreList)
+                {
+                    <option value="@item">@item</option>
+                }
+            </InputSelect> -->
+        </div>
+        <div class="col-2 pb-3 col-h">
+            @MovieIndexForm.GetDisplayName(m => m.SearchString)
+        </div>
+        <div class="col-10 pb-3 col-h">
+            <RadzenTextBox style="width:207px;" @bind-Value="MovieIndexForm.SearchString" />
+            <!-- <InputText @bind-Value="MovieIndexForm.SearchString" /> -->
+        </div>
+        <div class="col-2 pb-3 col-h">
+            期間
+        </div>
+        <div class="col-10 pb-2 col-h">
+            <DateParts EditContext="FormEditContext" @bind-FromDate="MovieIndexForm.From" @bind-ToDate="MovieIndexForm.To" />
+        </div>
+        <div class="col-10 pb-2 col-h">
+            <input class="btn btn-primary" type="submit" value="フィルター" />
+        </div>
+        <div class="col-2 pt-1 text-right"><a href="/movie/create">新規作成</a></div>
+    </div>
 </EditForm>
 
+<RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" FilterMode="FilterMode.Advanced" PageSize="5"
+        AllowPaging="true" AllowSorting="true" Data="@MovieIndexResult.MovieList" TItem="Models.Movie" ColumnWidth="930px" LogicalFilterOperator="LogicalFilterOperator.Or">
+        <Columns>
+            <RadzenDataGridColumn TItem="Models.Movie" Property="Title" Filterable="true" Title="タイトル" Frozen="true" Width="200px" TextAlign="TextAlign.Center" />
+            <RadzenDataGridColumn TItem="Models.Movie" Property="ReleaseDate" Title="リリース日" FormatString="{0:yyyy年MM月dd日}" Width="150px" />
+            <RadzenDataGridColumn TItem="Models.Movie" Property="Genre" Title="ジャンル" Width="150px" />
+            <RadzenDataGridColumn TItem="Models.Movie" Property="Price" Title="価格" Width="80px" />
+            <RadzenDataGridColumn TItem="Models.Movie" Property="Rating" Title="評価" Width="200px">
+                <Template Context="data">
+                    <RadzenRating ReadOnly="true" Stars="5" Value="data.Rating" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Models.Movie" Width="150px">
+                <Template Context="data">
+                    <a href="@($"/movie/create/{data.ID}")">編集</a> |
+                    <a href="@($"/movie/create/{data.ID}/t")">詳細</a> |
+                    <a href="@($"/movie/{data.ID}")">削除</a>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+</RadzenDataGrid>
+
+<!--
 <table class="table">
     <thead>
         <tr>
@@ -83,4 +122,4 @@
         </tr>
 }
     </tbody>
-</table>
+</table> -->

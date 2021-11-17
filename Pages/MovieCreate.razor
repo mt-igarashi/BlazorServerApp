@@ -27,35 +27,70 @@ else
             <DataAnnotationsValidator />
             <ValidationSummary />
 
-            <div class="form-group">
-                <label id="title" class="control-label">@MovieCreateForm.GetDisplayName(m => m.Title)</label>
-                <InputText id="title" class="form-control" @bind-Value="MovieCreateForm.Title" readonly="@DetailMode"/>
-                <ValidationMessage For="() => MovieCreateForm.Title" />
+            <div class="row">
+                <div class="col-2 pb-3 col-h">
+                    <label for="title">@MovieCreateForm.GetDisplayName(m => m.Title)</label>
+                </div>
+                <div class="col-10 pb-3 col-h">
+                    <RadzenTextBox id="title" style="width:300px;" @bind-Value="MovieCreateForm.Title" readonly="@DetailMode"/>
+                    <!-- <InputText id="title" class="form-control" @bind-Value="MovieCreateForm.Title" readonly="@DetailMode" /> -->
+                    <ValidationMessage For="() => MovieCreateForm.Title" />
+                </div>
             </div>
-            <div class="form-group">
-                <label id="releaseDate" class="control-label">@MovieCreateForm.GetDisplayName(m => m.ReleaseDate)</label>
-                <InputDate id="releaseDate" class="form-control" @bind-Value="MovieCreateForm.ReleaseDate" readonly="@DetailMode"/>
-                <ValidationMessage For="() => MovieCreateForm.ReleaseDate" />
+
+            <div class="row">
+                <div class="col-2 pb-3 col-h">
+                    <label for="releaseDate">@MovieCreateForm.GetDisplayName(m => m.ReleaseDate)</label>
+                </div>
+                <div class="col-10 pb-3 col-h">
+                    <RadzenDatePicker id="releaseDate" style="width:300px;" TValue="DateTime" @bind-Value="MovieCreateForm.ReleaseDate"  DateFormat="yyyy/MM/dd" readonly="@DetailMode" />
+                    <!-- <InputDate id="releaseDate" class="form-control" @bind-Value="MovieCreateForm.ReleaseDate" readonly="@DetailMode" /> -->
+                    <ValidationMessage For="() => MovieCreateForm.ReleaseDate" />
+                </div>
             </div>
-            <div class="form-group">
-                <label id="genre" class="control-label">@MovieCreateForm.GetDisplayName(m => m.Genre)</label>
-                <InputText id="genre" class="form-control" @bind-Value="MovieCreateForm.Genre" readonly="@DetailMode"/>
-                <ValidationMessage For="() => MovieCreateForm.Genre" />
+
+            <div class="row">
+                <div class="col-2 pb-3 col-h">
+                    <label for="genre">@MovieCreateForm.GetDisplayName(m => m.Genre)</label>
+                </div>
+                <div class="col-10 pb-3 col-h">
+                    <RadzenTextBox id="genre" style="width:300px;" @bind-Value="MovieCreateForm.Genre" readonly="@DetailMode"/>
+                    <!-- <InputText id="genre" class="form-control" @bind-Value="MovieCreateForm.Genre" readonly="@DetailMode" /> -->
+                    <ValidationMessage For="() => MovieCreateForm.Genre" />
+                </div>
             </div>
-            <div class="form-group">
-                <label id="price" class="control-label">@MovieCreateForm.GetDisplayName(m => m.Price)</label>
-                <InputNumber id="price" class="form-control" @bind-Value="MovieCreateForm.Price" readonly="@DetailMode"/>
-                <ValidationMessage For="() => MovieCreateForm.Price" />
+
+            <div class="row">
+                <div class="col-2 pb-3 col-h">
+                    <label for="price">@MovieCreateForm.GetDisplayName(m => m.Price)</label>
+                </div>
+                <div class="col-10 pb-3 col-h">
+                    <RadzenNumeric id="price" style="width:300px;" ShowUpDown="false" TValue="decimal" @bind-Value="MovieCreateForm.Price" readonly="@DetailMode" />
+                    <!-- <InputNumber id="price" class="form-control" @bind-Value="MovieCreateForm.Price" readonly="@DetailMode" /> -->
+                    <ValidationMessage For="() => MovieCreateForm.Price" />
+                </div>
             </div>
-            <div class="form-group">
-                <label id="rating" class="control-label">@MovieCreateForm.GetDisplayName(m => m.Rating)</label>
-                <InputText id="rating" class="form-control" @bind-Value="MovieCreateForm.Rating" readonly="@DetailMode"/>
-                <ValidationMessage For="() => MovieCreateForm.Rating" />
+
+            <div class="row">
+                <div class="col-2 pb-3 col-h">
+                    <label for="rating">@MovieCreateForm.GetDisplayName(m => m.Rating)</label>
+                </div>
+                <div class="col-10 pb-3 col-h">
+                    <RadzenRating id="rating" style="width:300px;" @bind-Value="MovieCreateForm.Rating" Stars="5" ReadOnly="@DetailMode" />
+                    <!-- <InputNumber id="rating" class="form-control" @bind-Value="MovieCreateForm.Rating" readonly="@DetailMode" /> -->
+                    <ValidationMessage For="() => MovieCreateForm.Rating" />
+                </div>
             </div>
             @if (!DetailMode)
             {
-                <div class="form-group">
-                    <input type="submit" value="登録" class="btn btn-primary" />
+                <div class="row">
+                    <div class="col-2">
+                    </div>
+                    <div class="col-7">
+                        <div class="float-right">
+                            <input type="submit" value="登録" class="btn btn-primary" />
+                        </div>
+                    </div>
                 </div>
             }
         </EditForm>

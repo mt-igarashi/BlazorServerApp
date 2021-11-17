@@ -30,9 +30,10 @@ namespace BlazorApp.Models
         public decimal Price { get; set; } = 100;
 
         [Display(Name = "評価")]
-        [RegularExpression(@"^[A-Z]+[a-zA-Z0-9""'\s-]*$", ErrorMessage = "{0}は英数字で入力してください")]
-        [StringLength(5, ErrorMessage = "{0}は{1}文字以内で入力してください")]
+        [Range(1, 5, ErrorMessage = "{0}は{1}と{2}の間で入力してください")]
         [Required(ErrorMessage = "{0}は必須項目です")]
-        public string Rating { get; set; }
+        public int Rating { get; set; }
+
+        public int Order { get; set; }
     }
 }

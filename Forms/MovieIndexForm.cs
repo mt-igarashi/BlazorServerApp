@@ -13,12 +13,13 @@ namespace BlazorApp.Forms
         /// <summary>
         /// 映画ジャンル
         /// </summary>
+        [Display(Name = "ジャンル")]
         public string MovieGenre { get; set; }
 
         /// <summary>
         /// 検索文字列
         /// </summary>
-        [Display(Name = "検索文字列")]
+        [Display(Name = "タイトル")]
         [StringLength(20, ErrorMessage = "{0}は{1}文字以内で入力してください")]
         public string SearchString { get; set; }
 

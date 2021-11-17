@@ -1,5 +1,6 @@
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp.Messages;
@@ -133,6 +134,8 @@ namespace BlazorApp.Services {
             var messageList = new MessageList();
             try
             {
+                var max = await context.Movie.Select(x => x.Order).MaxAsync();
+                movie.Order = max;
                 context.Add(movie);
                 await context.SaveChangesAsync();
             }
@@ -263,9 +266,9 @@ namespace BlazorApp.Services {
         public Task<MessageList> Validate(Movie movie)
         {
             var messageList = new MessageList();
-            if (movie.Rating == "N" && movie.Price != 10)
+            if (movie.Rating == 5 && movie.Price != 100)
             {
-                messageList.AddValidationMessage(() => movie.Price, "評価がNの場合は価格を10に設定してください");
+                messageList.AddValidationMessage(() => movie.Price, "評価が5の場合は価格を10に設定してください");
             }
             
             return Task.FromResult(messageList);
