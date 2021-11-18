@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using BlazorApp.Components;
 using BlazorApp.Forms;
+using BlazorApp.Helpers;
 using BlazorApp.Results;
 using BlazorApp.Services;
+using Radzen;
+using Radzen.Blazor;
 
 namespace BlazorApp.Pages
 {
@@ -33,6 +36,12 @@ namespace BlazorApp.Pages
         public NavigationManager NavigationManager { get; set; }
 
         /// <summary>
+        /// ツールチップサービス
+        /// </summary>
+        [Inject]
+        public TooltipService TooltipService { get; set; }
+
+        /// <summary>
         /// 画面フォーム
         /// </summary>
         public MovieIndexForm MovieIndexForm { get; set; } = new();
@@ -57,6 +66,11 @@ namespace BlazorApp.Pages
         /// </summary>
         [Parameter]
         public int? Id { get; set; }
+
+        /// <summary>
+        /// タイトル入力項目
+        /// </summary>
+        public RadzenTextBox HtmlSearchString { get; set; }
 
         /// <summary>
         /// フォームデータの復元
@@ -174,6 +188,20 @@ namespace BlazorApp.Pages
                 FormEditContext.NotifyFieldChanged(field);
             }
         }
+
+        /// <summary>
+        /// ツールチップを表示します。
+        /// </summary>
+        /// <param name="element">HTMLタグ参照</param>
+        /// <param name="name">プロパティ名</param>
+        void ShowTooltip(ElementReference element, string name)
+        {
+            var message = FormEditContext.GetValidationMessage(name);
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                TooltipService.ShowErrorTooltip(FormEditContext, element, message);    
+            }
+        } 
 
         /// <summary>
         /// 検索実行イベント

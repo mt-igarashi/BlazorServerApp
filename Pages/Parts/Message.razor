@@ -1,0 +1,36 @@
+@page "/message"
+@using BlazorApp.Messages
+
+@if (MessageList.SuccessMessageList.Count > 0)
+{
+    <div class="success-area">
+    @foreach (var message in MessageList.SuccessMessageList)
+    {
+        <div>@message</div>
+    }
+    </div>
+    <br>
+}
+else
+{
+    <div class="success-area" style="display: none;"></div>
+}
+@if (MessageList.ErrorMessageList.Count > 0)
+{
+    <div class="error-area">
+        @foreach (var message in MessageList.ErrorMessageList)
+        {
+            <div>@message</div>
+        }
+    </div>
+    <br>
+}
+else
+{
+    <div class="error-area" style="display: none;"></div>
+}
+
+@code {
+    [Parameter]
+    public MessageList MessageList { get; set; } = new();
+}

@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using BlazorApp.Components;
 using BlazorApp.Forms;
+using BlazorApp.Helpers;
 using BlazorApp.Messages;
 using BlazorApp.Services;
+using Radzen;
+using Radzen.Blazor;
 
 namespace BlazorApp.Pages
 {
@@ -18,28 +21,34 @@ namespace BlazorApp.Pages
         /// 映画作成サービス
         /// </summary>
         [Inject]
-        protected IMovieCreateService MovieCreateService { get; set; }
+        public IMovieCreateService MovieCreateService { get; set; }
 
         /// <summary>
         /// ナビゲーションマネジャー
         /// </summary>
         [Inject]
-        protected NavigationManager NavigationManager { get; set; }
+        public NavigationManager NavigationManager { get; set; }
+
+        /// <summary>
+        /// ツールチップサービス
+        /// </summary>
+        [Inject]
+        public TooltipService TooltipService { get; set; }
 
         /// <summary>
         /// 画面フォーム
         /// </summary>
-        protected Models.Movie MovieCreateForm { get; set; } = new();
+        public Models.Movie MovieCreateForm { get; set; } = new();
 
         /// <summary>
         /// 編集コンテキスト
         /// </summary>
-        protected EditContext FormEditContext { get; set; }
+        public EditContext FormEditContext { get; set; }
 
         /// <summary>
         /// 検証メッセージストア
         /// </summary>
-        protected ValidationMessageStore MessageStore { get; set; }
+        public ValidationMessageStore MessageStore { get; set; }
 
         /// <summary>
         /// ID
@@ -67,6 +76,31 @@ namespace BlazorApp.Pages
         /// 編集モード
         /// </summary>
         public bool EditMode { get; set; }
+
+        /// <summary>
+        /// タイトル入力項目
+        /// </summary>
+        public RadzenTextBox HtmlTitle { get; set; }
+
+        /// <summary>
+        /// 公開日入力項目
+        /// </summary>
+        public RadzenDatePicker<DateTime> HtmlReleaseDate { get; set; }
+
+        /// <summary>
+        /// ジャンル入力項目
+        /// </summary>
+        public RadzenTextBox HtmlGenre { get; set; }
+
+        /// <summary>
+        /// 価格入力項目
+        /// </summary>
+        public RadzenNumeric<decimal> HtmlPrice { get; set; }
+
+        /// <summary>
+        /// 評価入力項目
+        /// </summary>
+        public RadzenRating HtmlRating { get; set; }
 
         /// <summary>
         /// フォームデータを復元します。
@@ -162,6 +196,20 @@ namespace BlazorApp.Pages
         {
             MessageList.ClearMessages();
         }
+
+        /// <summary>
+        /// ツールチップを表示します。
+        /// </summary>
+        /// <param name="element">HTMLタグ参照</param>
+        /// <param name="name">プロパティ名</param>
+        void ShowTooltip(ElementReference element, string name)
+        {
+            var message = FormEditContext.GetValidationMessage(name);
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                TooltipService.ShowErrorTooltip(FormEditContext, element, message);    
+            }
+        } 
 
         /// <summary>
         /// 登録実行イベント

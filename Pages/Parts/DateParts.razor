@@ -30,8 +30,10 @@
     [Parameter]
     public DateTime? ToDate { get; set; }
 
+    [Parameter]
     public string FromCss { get; set; }
 
+    [Parameter]
     public string ToCss { get; set; }
 
     [Parameter]
@@ -46,8 +48,7 @@
 
         if (EditContext is not null)
         {
-            var hasError = EditContextHelper.NotifyFieldChanged(EditContext, FromName);
-            FromCss = EditContextHelper.GetFieldCss(hasError);
+            EditContext.NotifyFieldChanged(FromName);
         }
     }
 
@@ -57,11 +58,7 @@
 
         if (EditContext is not null)
         {
-            EditContextHelper.NotifyFieldChanged(EditContext, ToName);
-            ToCss = EditContextHelper.GetFieldCss(false);
-
-            var hasError = EditContextHelper.HasValidationError(EditContext, FromName);
-            FromCss = EditContextHelper.GetFieldCss(hasError);
+            EditContext.NotifyFieldChanged(ToName);
         }
     }
 

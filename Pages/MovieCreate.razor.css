@@ -5,3 +5,24 @@
 .tb-w {
     width: 207px;
 }
+
+h2 {
+    position: relative;
+    display: inline-block;
+    padding: 1rem 2rem 1rem 4rem;
+    color: #fff;
+    border-radius: 100vh 0 0 100vh;
+    background: #87ceeb;
+    margin-bottom: 1rem;
+  }
+  
+  h2:before {
+    position: absolute;
+    top: calc(50% - 7px);
+    left: 10px;
+    width: 14px;
+    height: 14px;
+    content: '';
+    border-radius: 50%;
+    background: #fff;
+  }
