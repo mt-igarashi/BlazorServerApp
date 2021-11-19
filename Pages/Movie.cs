@@ -194,13 +194,21 @@ namespace BlazorApp.Pages
         /// </summary>
         /// <param name="element">HTMLタグ参照</param>
         /// <param name="name">プロパティ名</param>
-        void ShowTooltip(ElementReference element, string name)
+        private void ShowTooltip(ElementReference element, string name)
         {
             var message = FormEditContext.GetValidationMessage(name);
             if (!string.IsNullOrWhiteSpace(message))
             {
                 TooltipService.ShowErrorTooltip(FormEditContext, element, message);    
             }
+        }
+
+        /// <summary>
+        /// ツールチップを非表示にします。
+        /// </summary>
+        private void CloseTooltip()
+        {
+            TooltipService.Close();
         } 
 
         /// <summary>
@@ -208,6 +216,13 @@ namespace BlazorApp.Pages
         /// </summary>
         private async Task HandleSearchValidSubmit()
         {
+            if (Loading)
+            {
+                return;
+            }
+            
+            Loading = true;
+
             // 検証成功時(属性検証、HandleUpdateValidationRequested含む)に呼び出される
             // OnSubmitは検証関係なく呼び出される
             // OnInValidSubmitは検証失敗時に呼び出される
@@ -218,6 +233,8 @@ namespace BlazorApp.Pages
             // OnAfterRender、OnAfterRenderAsyncは部分更新のためか
             // 複数回発生するのでその対処が必要
             await SetFormDataAsync(nameof(Movie), MovieIndexForm);
+
+            Loading = false;
         }
 
         /// <summary>

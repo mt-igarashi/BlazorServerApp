@@ -34,10 +34,7 @@ namespace BlazorApp.Helpers
         public static string GetValidationMessage(this EditContext context, string name)
         {
             var field = context.Field(name);
-            var info = PropertyHelper.GetPropertyInfo(context.Model, name);
-            var displayName = PropertyHelper.GetDisplayName(info);
-
-            var message = context.GetValidationMessages().Where(x => x.Contains(displayName)).FirstOrDefault();
+            var message = context.GetValidationMessages(field).FirstOrDefault();
             return  message ?? string.Empty;
         }
 
@@ -51,11 +48,7 @@ namespace BlazorApp.Helpers
         {
             var field = context.Field(name);
             context.NotifyFieldChanged(field);
-
-            var info = PropertyHelper.GetPropertyInfo(context.Model, name);
-            var displayName = PropertyHelper.GetDisplayName(info);
-
-            return context.GetValidationMessages().Any(x => x.Contains(displayName));
+            return context.GetValidationMessages(field).Count() > 0;
         }
 
         /// <summary>

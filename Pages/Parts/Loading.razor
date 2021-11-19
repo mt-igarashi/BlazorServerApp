@@ -1,0 +1,26 @@
+@page "/parts/loding"
+
+@using BlazorApp.Components
+@inherits BlazorAppComponent
+
+@if (Show)
+{
+    <div class="spinner_box">
+        <div class="spinner type1">
+            <span>Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="spinner_box loaded">
+        <div class="spinner type1">
+            <span>Loading...</span>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool Show { get; set; }
+}

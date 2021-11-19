@@ -3,10 +3,12 @@
 @using BlazorApp.Helpers
 @using BlazorApp.Components
 @using BlazorApp.Pages.Parts
+@using Radzen
 
 @inherits BlazorAppComponent
 
 <Message MessageList=MessageList />
+<Loading Show=Loading />
 
 @if (DetailMode)
 {
@@ -32,8 +34,10 @@ else
                     <label for="title">@MovieCreateForm.GetDisplayName(m => m.Title)</label>
                 </div>
                 <div class="col-10 pb-3 col-h">
-                    <RadzenTextBox id="title" style="width:300px;" @bind-Value="MovieCreateForm.Title" readonly="@DetailMode"
-                    @ref="HtmlTitle" @onmouseover="@(args => ShowTooltip(HtmlTitle.Element, "Title"))" />
+                    <RadzenTextBox id="title" style="width:300px;" @bind-Value="MovieCreateForm.Title"
+                    readonly="@DetailMode" @ref="HtmlTitle"
+                    @onmouseover="@(args => ShowTooltip(HtmlTitle.Element, nameof(MovieCreateForm.Title)))"
+                    @onmouseout="@(args => CloseTooltip())" />
                     <!-- <ValidationMessage For="() => MovieCreateForm.Title" /> -->
                     <!-- <InputText id="title" class="form-control" @bind-Value="MovieCreateForm.Title" readonly="@DetailMode" /> -->
                 </div>
@@ -46,7 +50,8 @@ else
                 <div class="col-10 pb-3 col-h">
                     <RadzenDatePicker id="releaseDate" style="width:300px;" TValue="DateTime" @bind-Value="MovieCreateForm.ReleaseDate"
                      DateFormat="yyyy/MM/dd" readonly="@DetailMode" @ref="HtmlReleaseDate"
-                     @onmouseover="@(args => ShowTooltip(HtmlReleaseDate.Element, "ReleaseDate"))" />
+                     @onmouseover="@(args => ShowTooltip(HtmlReleaseDate.Element, nameof(MovieCreateForm.ReleaseDate)))"
+                     @onmouseout="@(args => CloseTooltip())" />
                     <!-- <ValidationMessage For="() => MovieCreateForm.ReleaseDate" /> -->
                     <!-- <InputDate id="releaseDate" class="form-control" @bind-Value="MovieCreateForm.ReleaseDate" readonly="@DetailMode" /> -->
                 </div>
@@ -57,8 +62,10 @@ else
                     <label for="genre">@MovieCreateForm.GetDisplayName(m => m.Genre)</label>
                 </div>
                 <div class="col-10 pb-3 col-h">
-                    <RadzenTextBox id="genre" style="width:300px;" @bind-Value="MovieCreateForm.Genre" readonly="@DetailMode"
-                     @ref="HtmlGenre" @onmouseover="@(args => ShowTooltip(HtmlGenre.Element, "Genre"))" />
+                    <RadzenTextBox id="genre" style="width:300px;" @bind-Value="MovieCreateForm.Genre"
+                    readonly="@DetailMode" @ref="HtmlGenre"
+                     @onmouseover="@(args => ShowTooltip(HtmlGenre.Element, nameof(MovieCreateForm.Genre)))"
+                     @onmouseout="@(args => CloseTooltip())" />
                     <!-- <ValidationMessage For="() => MovieCreateForm.Genre" /> -->
                     <!-- <InputText id="genre" class="form-control" @bind-Value="MovieCreateForm.Genre" readonly="@DetailMode" /> -->
                 </div>
@@ -69,8 +76,10 @@ else
                     <label for="price">@MovieCreateForm.GetDisplayName(m => m.Price)</label>
                 </div>
                 <div class="col-10 pb-3 col-h">
-                    <RadzenNumeric id="price" style="width:300px;" ShowUpDown="false" TValue="decimal" @bind-Value="MovieCreateForm.Price" readonly="@DetailMode"
-                     @ref="HtmlPrice" @onmouseover="@(args => ShowTooltip(HtmlPrice.Element, "Price"))" />
+                    <RadzenNumeric id="price" style="width:300px;" ShowUpDown="false" TValue="decimal"
+                     @bind-Value="MovieCreateForm.Price" readonly="@DetailMode" @ref="HtmlPrice"
+                     @onmouseover="@(args => ShowTooltip(HtmlPrice.Element, nameof(MovieCreateForm.Price)))"
+                     @onmouseout="@(args => CloseTooltip())" />
                     <!-- <ValidationMessage For="() => MovieCreateForm.Price" /> -->
                     <!-- <InputNumber id="price" class="form-control" @bind-Value="MovieCreateForm.Price" readonly="@DetailMode" /> -->
                 </div>
@@ -81,8 +90,10 @@ else
                     <label for="rating">@MovieCreateForm.GetDisplayName(m => m.Rating)</label>
                 </div>
                 <div class="col-10 pb-3 col-h">
-                    <RadzenRating id="rating" style="width:300px;" @bind-Value="MovieCreateForm.Rating" Stars="5" ReadOnly="@DetailMode"
-                     @ref="HtmlRating" @onmouseover="@(args => ShowTooltip(HtmlRating.Element, "Rating"))"/>
+                    <RadzenRating id="rating" style="width:300px;" @bind-Value="MovieCreateForm.Rating"
+                     Stars="5" ReadOnly="@DetailMode" @ref="HtmlRating"
+                     @onmouseover="@(args => ShowTooltip(HtmlRating.Element, nameof(MovieCreateForm.Rating)))"
+                     @onmouseout="@(args => CloseTooltip())" />
                     <!-- <ValidationMessage For="() => MovieCreateForm.Rating" /> -->
                     <!-- <InputNumber id="rating" class="form-control" @bind-Value="MovieCreateForm.Rating" readonly="@DetailMode" /> -->
                 </div>
@@ -94,7 +105,8 @@ else
                     </div>
                     <div class="col-7">
                         <div class="float-right">
-                            <input type="submit" value="登録" class="btn btn-primary" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="登録" Click=@(args => DialogService.Confirm("登録します。よろしいですか?", "確認", new ConfirmOptions() { OkButtonText = "はい", CancelButtonText = "いいえ" })) />
+                            <input id="register" type="submit" value="登録" class="btn btn-primary" style="display: none;" />
                         </div>
                     </div>
                 </div>

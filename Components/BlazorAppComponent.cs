@@ -23,12 +23,18 @@ namespace BlazorApp.Components
         /// セッションストレージ
         /// </summary>
         [Inject]
-        protected ProtectedSessionStorage sessionStorage { get; set; }
+        public ProtectedSessionStorage sessionStorage { get; set; }
 
         /// <summary>
         /// メッセージリスト
         /// </summary>
         public MessageList MessageList { get; set; } = new();
+
+        /// <summary>
+        /// ローディング中を表すフラグ
+        /// </summary>
+        /// <value></value>
+        public bool Loading { get; set; } 
 
         /// <summary>
         /// 初期化処理

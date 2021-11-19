@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 using BlazorApp.Components;
 using BlazorApp.Forms;
 using BlazorApp.Helpers;
@@ -34,6 +36,23 @@ namespace BlazorApp.Pages
         /// </summary>
         [Inject]
         public TooltipService TooltipService { get; set; }
+
+        /// <summary>
+        /// ダイアログサービス
+        /// </summary>
+        [Inject]
+        public DialogService DialogService { get; set; }
+
+        /// <summary>
+        /// JSランタイム
+        /// </summary>
+        [Inject]
+        public IJSRuntime Js { get; set; }
+
+        /// <summary>
+        /// Jsオブジェクト参照
+        /// </summary>
+        public IJSObjectReference Module { get; set; }
 
         /// <summary>
         /// 画面フォーム
@@ -147,6 +166,9 @@ namespace BlazorApp.Pages
             FormEditContext.OnValidationRequested += HandleUpdateValidationRequested;
             FormEditContext.OnFieldChanged += HandleFieldChanged;
             MessageStore = new ValidationMessageStore(FormEditContext);
+
+            DialogService.OnOpen += Open;
+            DialogService.OnClose += Close;
         }
 
         /// <summary>
@@ -169,6 +191,10 @@ namespace BlazorApp.Pages
 
                     await SetFormDataAsync(nameof(Movie), index);
                     NavigationManager.NavigateTo("/movie");
+                }
+                else
+                {
+                    Module = await Js.InvokeAsync<IJSObjectReference>("import", "./js/Common.js");
                 }
             }
         }
@@ -198,11 +224,34 @@ namespace BlazorApp.Pages
         }
 
         /// <summary>
+        /// 確認ダイアログを開きます。
+        /// </summary>
+        /// <param name="title">タイトル</param>
+        /// <param name="type">型</param>
+        /// <param name="parameters">パラメータ</param>
+        /// <param name="options">オプション</param>
+        private void Open(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
+        {
+        }
+
+        /// <summary>
+        /// 確認ダイアログを閉じます。
+        /// </summary>
+        /// <param name="result">実行結果</param>
+        private async void Close(dynamic result)
+        {
+            if (result)
+            {
+                await Module.InvokeVoidAsync("click", "#register");
+            }
+        }
+
+        /// <summary>
         /// ツールチップを表示します。
         /// </summary>
         /// <param name="element">HTMLタグ参照</param>
         /// <param name="name">プロパティ名</param>
-        void ShowTooltip(ElementReference element, string name)
+        private void ShowTooltip(ElementReference element, string name)
         {
             var message = FormEditContext.GetValidationMessage(name);
             if (!string.IsNullOrWhiteSpace(message))
@@ -212,10 +261,25 @@ namespace BlazorApp.Pages
         } 
 
         /// <summary>
+        /// ツールチップを非表示にします。
+        /// </summary>
+        private void CloseTooltip()
+        {
+            TooltipService.Close();
+        } 
+
+        /// <summary>
         /// 登録実行イベント
         /// </summary>
         private async Task HandleUpdateValidSubmit()
         {
+            if (Loading)
+            {
+                return;
+            }
+
+            Loading = true;
+
             MessageList messageList;
             if (EditMode)
             {
@@ -271,6 +335,8 @@ namespace BlazorApp.Pages
                 await SetFormDataAsync(nameof(Movie), form);
                 NavigationManager.NavigateTo("/movie");
             }
+
+            Loading = false;
         }
 
         /// <summary>
@@ -308,6 +374,9 @@ namespace BlazorApp.Pages
                 FormEditContext.OnValidationRequested -= HandleUpdateValidationRequested;
                 FormEditContext.OnFieldChanged -= HandleFieldChanged;
             }
+
+            DialogService.OnOpen -= Open;
+            DialogService.OnClose -= Close;
         }
     }
 }
