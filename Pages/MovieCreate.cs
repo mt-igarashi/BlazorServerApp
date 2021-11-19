@@ -44,17 +44,6 @@ namespace BlazorApp.Pages
         public DialogService DialogService { get; set; }
 
         /// <summary>
-        /// JSランタイム
-        /// </summary>
-        [Inject]
-        public IJSRuntime Js { get; set; }
-
-        /// <summary>
-        /// Jsオブジェクト参照
-        /// </summary>
-        public IJSObjectReference Module { get; set; }
-
-        /// <summary>
         /// 画面フォーム
         /// </summary>
         public Models.Movie MovieCreateForm { get; set; } = new();
@@ -192,10 +181,6 @@ namespace BlazorApp.Pages
                     await SetFormDataAsync(nameof(Movie), index);
                     NavigationManager.NavigateTo("/movie");
                 }
-                else
-                {
-                    Module = await Js.InvokeAsync<IJSObjectReference>("import", "./js/Common.js");
-                }
             }
         }
 
@@ -242,7 +227,10 @@ namespace BlazorApp.Pages
         {
             if (result)
             {
-                await Module.InvokeVoidAsync("click", "#register");
+                if (FormEditContext.Validate())
+                {
+                    await HandleUpdateValidSubmit();
+                }
             }
         }
 
