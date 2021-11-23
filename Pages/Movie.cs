@@ -215,12 +215,17 @@ namespace BlazorApp.Pages
         /// 検索実行イベント
         /// </summary>
         private async Task HandleSearchValidSubmit()
-        {
+        {            
+            if (!FormEditContext.Validate())
+            {
+                return;
+            }
+
             if (Loading)
             {
                 return;
             }
-            
+
             Loading = true;
 
             // 検証成功時(属性検証、HandleUpdateValidationRequested含む)に呼び出される

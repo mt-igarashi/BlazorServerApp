@@ -49,7 +49,8 @@
             <DateParts EditContext="FormEditContext" @bind-FromDate="MovieIndexForm.From" @bind-ToDate="MovieIndexForm.To" />
         </div>
         <div class="col-10 pb-2 col-h">
-            <input class="btn btn-primary" type="submit" value="フィルター" />
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="フィルター" Click=@(args => HandleSearchValidSubmit()) />
+            <!-- <input class="btn btn-primary" type="submit" value="フィルター" /> -->
         </div>
         <div class="col-2 pt-1 text-right"><a href="/movie/create">新規作成</a></div>
     </div>
